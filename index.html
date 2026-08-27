@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Fede's Garage Sale</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — the single source of truth. See design/DESIGN.md.
+   deck.css may only reference these; never hard-code a color or size there.
+
+   Colours are Apple's system colours (light + dark appearance).
+   Sizes follow the tvOS type scale at 1080p, expressed in screen units
+   (1rem = 1 % of the width of a 16:9 screen; on a wider window it follows
+   the height instead, so a slide never outgrows a short window) and clamped
+   so laptops stay sane.
+   ───────────────────────────────────────────────────────────── */
+html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 38.4 px at 4K, height-bound on wider windows */
+
+:root {
+  color-scheme: light;
+
+  /* Colour · light appearance */
+  --bg:        #FFFFFF;                 /* system background */
+  --container: #F2F2F7;                 /* grouped background: photo container, cards, list */
+  --label:     #000000;
+  --label-2:   rgba(60, 60, 67, .6);    /* secondary label */
+  --label-3:   rgba(60, 60, 67, .3);    /* tertiary label: inactive page dots */
+  --fill:      rgba(120, 120, 128, .16);/* chips */
+  --separator: rgba(60, 60, 67, .29);
+  --tint:      #007AFF;                 /* used for exactly one thing: the contact button */
+  --on-tint:   #FFFFFF;
+  --material:  rgba(255, 255, 255, .72);/* pills over photos (with backdrop blur) */
+  --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .12); /* focused card lift — a hint of depth, not a pop */
+
+  /* Type · system font (SF on Apple devices), tvOS scale at 1080p */
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, "Helvetica Neue", Roboto, sans-serif;
+  --fs-price:      clamp(36px, 5.2rem, 124px);   /* 100 px · asking price */
+  --fs-large:      clamp(32px, 4.6rem, 110px);   /*  88 px · cover / list title */
+  --fs-title:      clamp(24px, 3.1rem, 76px);    /*  60 px · Title 2 · item title */
+  --fs-title-long: clamp(20px, 2.5rem, 60px);    /*  48 px · Title 3 · item title over 34 characters */
+  --fs-headline:   clamp(17px, 1.98rem, 48px);   /*  38 px · Headline · subtitle */
+  --fs-body:       clamp(15px, 1.51rem, 36px);   /*  29 px · Body · description, compare, list rows */
+  --fs-card:       clamp(14px, 1.46rem, 35px);   /*  28 px · card title */
+  --fs-caption:    clamp(13px, 1.3rem, 31px);    /*  25 px · Caption 1 · eyebrow, pills, chips */
+
+  /* Space · tvOS safe zone (60 pt top/bottom, 80 pt sides) + rhythm */
+  --safe-x: 4.17rem;
+  --safe-y: 5.56vh;
+  --gap-1: .5rem;
+  --gap-2: 1rem;
+  --gap-3: 1.8rem;
+  --gap-4: 2.2rem;
+  --photo-w: 53vw;      /* photo container width */
+  --text-x: 61.4vw;     /* where the text column starts */
+  --grid-gap: .45rem;    /* between photos in the photo grid */
+  --thumb: 3.4rem;       /* list thumbnail */
+  --dot: .55rem;         /* page dot */
+
+  /* Shape + motion */
+  --r-lg: 1.25rem;       /* 24 px · containers, cards, groups */
+  --r-md: .6rem;         /* 12 px · photos, thumbnails */
+  --r-pill: 999px;
+  --dur: 300ms;         /* slide cross-dissolve */
+  --dur-fast: 200ms;    /* card lift */
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* Dark appearance: follows the system unless config.appearance pins it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg:        #000000;
+    --container: #1C1C1E;
+    --label:     #FFFFFF;
+    --label-2:   rgba(235, 235, 245, .6);
+    --label-3:   rgba(235, 235, 245, .3);
+    --fill:      rgba(120, 120, 128, .24);
+    --separator: rgba(84, 84, 88, .65);
+    --tint:      #0A84FF;
+    --material:  rgba(30, 30, 32, .72);
+    --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:        #000000;
+  --container: #1C1C1E;
+  --label:     #FFFFFF;
+  --label-2:   rgba(235, 235, 245, .6);
+  --label-3:   rgba(235, 235, 245, .3);
+  --fill:      rgba(120, 120, 128, .24);
+  --separator: rgba(84, 84, 88, .65);
+  --tint:      #0A84FF;
+  --material:  rgba(30, 30, 32, .72);
+  --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
+}
+
+/* Phones and portrait windows: iOS sizes in points. */
+@media (max-width: 820px), (orientation: portrait) {
+  html { font-size: 16px; }
+  :root {
+    --fs-price: 36px;
+    --fs-large: 34px;
+    --fs-title: 28px;
+    --fs-title-long: 24px;
+    --fs-headline: 17px;
+    --fs-body: 15px;
+    --fs-card: 15px;
+    --fs-caption: 13px;
+    --safe-x: 16px;
+    --safe-y: 16px;
+    --gap-1: 6px;
+    --gap-2: 12px;
+    --gap-3: 16px;
+    --gap-4: 20px;
+    --thumb: 44px;
+    --grid-gap: 4px;
+    --r-lg: 20px;
+    --r-md: 10px;
+    --shadow: 0 6px 14px -6px rgba(0, 0, 0, .15);
+  }
+}
+
+/* Components. Colors and sizes come from tokens.css only. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--label); font-family: var(--font); overflow: hidden; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+:focus-visible { outline: max(3px, .2vw) solid var(--tint); outline-offset: .3vw; }
+
+/* ── Slides ─────────────────────────────────────────────── */
+.slide { position: fixed; inset: 0; opacity: 0; pointer-events: none; transform: scale(.98); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.slide.active { opacity: 1; pointer-events: auto; transform: none; }
+
+/* ── Product ────────────────────────────────────────────── */
+.body { position: absolute; inset: var(--safe-y) var(--safe-x); display: grid; grid-template-columns: var(--photo-w) minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr); column-gap: calc(var(--text-x) - var(--safe-x) - var(--photo-w)); grid-template-areas: "photo head" "photo desc" "photo chips" "photo buy"; }
+.head { grid-area: head; min-width: 0; }
+.desc { grid-area: desc; }
+.chips { grid-area: chips; align-self: start; }
+.buy { grid-area: buy; align-self: end; }
+
+/* Photo grid: every photo of the lot in one container; the shape follows the count. */
+.photo { grid-area: photo; position: relative; min-height: 0; background: var(--container); border-radius: var(--r-lg); overflow: hidden; display: grid; gap: var(--grid-gap); padding: var(--grid-gap); grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); }
+.photo .cell { position: relative; min-width: 0; min-height: 0; overflow: hidden; border-radius: var(--r-md); background: var(--fill); grid-column: span 6; cursor: pointer; }
+.photo .cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo .cell .pill { position: absolute; right: var(--gap-2); bottom: var(--gap-2); }
+.photo .cell .pill.top { bottom: auto; top: var(--gap-2); }
+.photo .empty { grid-column: span 6; display: flex; align-items: center; justify-content: center; font-size: var(--fs-headline); color: var(--label-2); }
+.photo[data-n="1"], .photo.focus { padding: 0; }
+.photo[data-n="1"] .cell, .photo.focus .cell { border-radius: 0; grid-column: span 6; grid-row: auto; }
+.photo.cols .cell { grid-column: span 3; }                        /* 2 · side by side */
+.photo.rows .cell { grid-column: span 6; }                        /* 2 · stacked (both landscape) */
+.photo[data-n="3"] .cell { grid-column: span 2; }                 /* 3 · one large, two small */
+.photo[data-n="3"] .cell:first-child { grid-column: span 4; grid-row: span 2; }
+.photo[data-n="4"] .cell { grid-column: span 3; }                 /* 4 · two by two */
+.photo[data-n="5"] .cell { grid-column: span 2; }                 /* 5 · two over three */
+.photo[data-n="5"] .cell:nth-child(-n+2) { grid-column: span 3; }
+.photo[data-n="6"] .cell { grid-column: span 2; }                 /* 6 · three by two */
+.pill { display: inline-flex; align-items: center; font-size: var(--fs-caption); font-weight: 500; line-height: 1; padding: .5em .85em; border-radius: var(--r-pill); background: var(--material); color: var(--label); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); white-space: nowrap; }
+
+/* Back to the cover: top-leading, over the photo's corner on product slides; a filled pill at the head of the list's eyebrow. */
+.back { position: absolute; top: calc(var(--safe-y) + var(--gap-2)); left: calc(var(--safe-x) + var(--gap-2)); z-index: 2; gap: .4em; padding-left: .7em; }
+.back svg { width: .55em; height: .9em; display: block; }
+.list .back { position: static; background: var(--fill); backdrop-filter: none; -webkit-backdrop-filter: none; margin-right: .2em; }
+
+.cap { font-size: var(--fs-caption); font-weight: 500; color: var(--label-2); display: flex; align-items: center; gap: .8em; }
+.title { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.022em; line-height: 1.06; margin-top: var(--gap-2); text-wrap: balance; }
+.title.long { font-size: var(--fs-title-long); }
+.sub { font-size: var(--fs-headline); color: var(--label-2); margin-top: var(--gap-1); line-height: 1.25; letter-spacing: -.01em; }
+.desc { font-size: var(--fs-body); line-height: 1.35; margin-top: var(--gap-3); max-width: 40ch; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--gap-1); margin-top: var(--gap-3); }
+.chip { font-size: var(--fs-caption); font-weight: 500; line-height: 1; padding: .5em .85em; border-radius: var(--r-pill); background: var(--fill); }
+
+.buy { padding-top: var(--gap-3); display: flex; align-items: last baseline; gap: var(--gap-3); flex-wrap: wrap; }
+.price { font-size: var(--fs-price); font-weight: 600; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.price small { font-size: var(--fs-headline); font-weight: 400; letter-spacing: -.01em; color: var(--label-2); margin-left: .3em; }
+.price.tbd { font-size: var(--fs-title-long); font-weight: 500; letter-spacing: -.01em; color: var(--label-2); }
+.cmp { font-size: var(--fs-body); color: var(--label-2); line-height: 1.35; }
+.cmp s { text-decoration-thickness: .08em; }
+.cmp .set { color: var(--label); }
+
+.dots { position: absolute; left: 0; right: 0; bottom: calc(var(--safe-y) * .4); display: flex; justify-content: center; gap: var(--gap-1); }
+.dots i { width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--label-3); }
+.dots i.on { background: var(--label); }
+
+/* ── Cover ──────────────────────────────────────────────── */
+.cover, .list { display: flex; flex-direction: column; padding: var(--safe-y) var(--safe-x); }
+.cover h1, .list h1 { font-size: var(--fs-large); font-weight: 600; letter-spacing: -.025em; line-height: 1.05; margin-top: var(--gap-1); }
+.cover .sub { margin-top: var(--gap-1); }
+.cards { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); grid-template-rows: repeat(var(--rows, 2), minmax(0, 1fr)); gap: var(--gap-2); margin-top: var(--gap-4); padding: var(--gap-1); }
+.card { background: var(--container); border-radius: var(--r-lg); padding: var(--gap-2); display: flex; flex-direction: column; min-height: 0; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+.card:hover, .card:focus-visible { transform: scale(1.04); box-shadow: var(--shadow); z-index: 1; }
+.card .im { flex: 1; min-height: 0; border-radius: var(--r-md); overflow: hidden; background: var(--fill); }
+.card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .t { font-size: var(--fs-card); font-weight: 600; letter-spacing: -.01em; line-height: 1.2; margin-top: var(--gap-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .p { font-size: var(--fs-caption); color: var(--label-2); margin-top: .2em; font-variant-numeric: tabular-nums; }
+
+/* ── List (last slide) ──────────────────────────────────── */
+.groups { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: 1fr; gap: var(--gap-3); margin-top: var(--gap-4); align-items: start; }
+.groups.two { grid-template-columns: 1fr 1fr; }
+.group { background: var(--container); border-radius: var(--r-lg); padding: 0 var(--gap-3); }
+.row { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--gap-2); align-items: center; padding: var(--gap-2) 0; border-top: 1px solid var(--separator); font-size: var(--fs-body); }
+.row:first-child { border-top: 0; }
+.row .th { width: var(--thumb); height: var(--thumb); border-radius: var(--r-md); object-fit: cover; background: var(--fill); display: block; }
+.row .t { line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .t small { display: block; font-size: var(--fs-caption); color: var(--label-2); margin-top: .15em; }
+.row .p { font-weight: 600; font-variant-numeric: tabular-nums; }
+.list.dense .row { padding: var(--gap-1) 0; font-size: var(--fs-caption); }
+.list.dense .row .th, .list.dense .row small { display: none; }
+.foot { margin-top: auto; padding-top: var(--gap-3); display: flex; align-items: center; justify-content: space-between; gap: var(--gap-2); }
+.btn { display: inline-block; font-size: var(--fs-body); font-weight: 600; line-height: 1; padding: .7em 1.3em; border-radius: var(--r-pill); background: var(--tint); color: var(--on-tint); }
+
+/* ── Motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .slide, .card { transition: none; }
+  .slide { transform: none; }
+  .card:hover, .card:focus-visible { transform: none; }
+}
+
+/* ── Phones / portrait windows ──────────────────────────── */
+@media (max-width: 820px), (orientation: portrait) {
+  html, body { overflow: auto; }
+  .slide { position: relative; inset: auto; opacity: 1; transform: none; display: none; min-height: 100vh; transition: none; }
+  .slide.active { display: block; }
+  .slide.cover.active, .slide.list.active { display: flex; }
+  .body { position: relative; inset: auto; display: block; padding: var(--safe-y) var(--safe-x) 120px; }
+  .photo { height: 52vh; }
+  .head { margin-top: var(--gap-4); }
+    .buy { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 14px var(--safe-x) 28px; background: var(--bg); border-top: 1px solid var(--separator); justify-content: space-between; flex-wrap: nowrap; }
+  .cmp { text-align: right; font-size: var(--fs-caption); }
+  .dots { display: none; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; flex: none; }
+  .card .im { flex: none; height: 36vw; }
+  .groups { overflow: visible; flex: none; }
+  .groups.two { grid-template-columns: 1fr; }
+  .foot { flex-direction: column; align-items: flex-start; }
+}
+
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<script>
+const DATA = {"config":{"title":"Fede's Garage Sale","subtitle":"A few good things looking for a new home","seller":"Fede","contact":"Ping me on WhatsApp","footnote":"Prices are a conversation","appearance":"auto","currency":"GBP","locale":"en-GB","market":"United Kingdom","marketplaces":["eBay UK (sold listings)","Facebook Marketplace","Gumtree","Vinted","Amazon UK (new price)"]},"products":[{"title":"Thermomix TM7","subtitle":"Vorwerk · pre-ordered at launch, Feb 2025 · complete set","category":"Kitchen","condition":"Like new","description":"The current Thermomix, ordered on launch day and delivered May 2025. Everything that came in the box is included: bowl with insulating cover, Varoma, simmering basket, butterfly whisk and spatula. Still inside Vorwerk's 2-year warranty.","highlights":["Complete set, incl. Varoma","10-inch touchscreen","Current model (2025)","Warranty until May 2027"],"original_price":1349,"asking_price":950,"status":"draft","order":1,"slug":"thermomix-tm7","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg"],"ratios":[1,1,1,1],"research":{"used_price_range":[750,1250]}},{"title":"Thermomix TM6","subtitle":"Vorwerk · bought May 2021 · complete set","category":"Kitchen","condition":"Good","description":"The previous-generation Thermomix, bought new from Vorwerk UK in May 2021 and replaced by the TM7. Works exactly as it should: bowl, Varoma, simmering basket, butterfly whisk, spatula and measuring cup all included. Wi-Fi with Cookidoo guided recipes.","highlights":["Complete set, incl. Varoma","Bought new from Vorwerk UK","Cookidoo-ready"],"original_price":1149,"asking_price":550,"status":"draft","order":2,"slug":"thermomix-tm6","photos":["stock-1.jpg","stock-2.jpg"],"ratios":[1,1],"research":{"used_price_range":[450,800]}},{"title":"Technogym Bench","subtitle":"Antonio Citterio design · bought March 2022 · full kit","category":"Fitness","condition":"Good","description":"Technogym's all-in-one home bench: everything stores inside it. Comes with the five pairs of hexagon dumbbells (2.5–10 kg), three resistance bands, three pairs of weighted knuckles and the training mat. Adjustable backrest, 200+ exercises in the Technogym app.","highlights":["5 dumbbell pairs, 2.5–10 kg","Bands, knuckles and mat","Everything stores inside","Made in Italy"],"original_price":1450,"asking_price":650,"status":"draft","order":3,"slug":"technogym-bench","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg","stock-5.jpg","stock-6.jpg"],"ratios":[1.33,1.33,1.33,1.33,1.33,1.33],"research":{"used_price_range":[500,990]}},{"title":"Vesper Coffee Table","subtitle":"Williston Forge (Wayfair) · trunk-style, whitewashed pine · 85 × 48 × 45 cm","category":"Furniture","condition":"Good","description":"Trunk-style coffee table from Wayfair's Williston Forge range: a whitewashed solid-pine chest with black metal clasps and a 'Roosevelt Field INC. 1916 New York' stencil. The lid lifts off for storage — blankets, games, remotes. 85 cm wide, 48 cm deep, 45 cm high.","highlights":["Storage under the lid","Whitewashed solid pine","85 × 48 × 45 cm"],"original_price":370,"asking_price":100,"status":"draft","order":4,"slug":"vesper-coffee-table","photos":["stock-1.jpg","stock-2.jpg"],"ratios":[1,1.33],"research":{"used_price_range":[60,150]}},{"title":"Armstrong TV Stand","subtitle":"Williston Forge (Wayfair) · for TVs up to 65\"","category":"Furniture","condition":"Fair","description":"Industrial-style TV unit for screens up to 65\" from Wayfair's Williston Forge range. It arrived with transit damage that I repaired myself — solid and looks fine in use, but not showroom-perfect, and priced accordingly.","highlights":["Fits TVs up to 65\"","Repaired transit damage"],"original_price":265,"asking_price":80,"status":"draft","order":5,"slug":"armstrong-tv-stand","photos":[],"ratios":[],"research":{"used_price_range":[50,120]}},{"title":"Montreal Throw & Two Cushions","subtitle":"DUSK · chunky knit, Natural · bought March 2026","category":"Home","condition":"Like new","description":"DUSK's Montreal chunky-knit sofa throw in Natural with two matching 50 × 50 cm cushions (covers and pads). Bought in March 2026, barely used. Sold as a set.","highlights":["Throw + two 50 cm cushions","Cushion pads included","Bought Mar 2026"],"original_price":119,"asking_price":55,"status":"draft","order":6,"slug":"dusk-montreal-throw-cushion","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg"],"ratios":[1,1,1],"research":{"used_price_range":[35,70]}},{"title":"MADE Harlow Sofa","subtitle":"Textured weave, grey · black metal legs · bought June 2024","category":"Furniture","condition":"Good","description":"MADE's Harlow sofa in a dark grey textured weave: single tufted seat cushion, two loose back cushions, side bolsters and slim black metal legs. Bought from MADE via Next in June 2024, delivered October 2024. The matching Harlow footstool is also for sale — take both for £425.","highlights":["Harlow by MADE","Back cushions + bolsters","Matching footstool available"],"original_price":890,"asking_price":350,"status":"draft","order":7,"slug":"made-harlow-sofa","photos":["stock-1.jpg"],"ratios":[0.75],"research":{"used_price_range":[250,500]}},{"title":"MADE Harlow Footstool","subtitle":"Textured weave, grey · black metal legs · bought June 2024","category":"Furniture","condition":"Good","description":"The Harlow footstool in the same dark grey textured weave as the sofa — tufted top, slim black metal legs. Works as a footrest, extra seat or coffee-table stand-in. Sold with the sofa for £425, or on its own.","highlights":["Harlow by MADE","Matches the Harlow sofa","£425 with the sofa"],"original_price":283,"asking_price":110,"status":"draft","order":8,"slug":"made-harlow-footstool","photos":["stock-1.jpg"],"ratios":[0.75],"research":{"used_price_range":[70,160]}},{"title":"Samsung 55\" QN88C Neo QLED","subtitle":"2023 · 4K 120 Hz Mini-LED · bought June 2023","category":"Electronics","condition":"Good","description":"Samsung's 2023 55-inch Neo QLED: Mini-LED backlight, 4K at 120 Hz, HDMI 2.1 on all four ports, Dolby Atmos, Tizen smart TV. Bought direct from Samsung UK in June 2023. Comes with the remote and stand.","highlights":["4K 120 Hz, 4× HDMI 2.1","Mini-LED, Quantum HDR","Model QE55QN88C (2023)"],"original_price":899,"asking_price":400,"status":"draft","order":9,"slug":"samsung-qn88c-55","photos":["stock-1.jpg"],"ratios":[1],"research":{"used_price_range":[350,500]}},{"title":"Herman Miller Aeron","subtitle":"Remastered · Graphite · fully adjustable · bought May 2023","category":"Office","condition":"Good","description":"The Aeron, bought new from Herman Miller UK in May 2023. Remastered version in Graphite with fully adjustable arms, adjustable PostureFit SL back support, tilt limiter and forward tilt. Herman Miller's 12-year warranty runs from 2023.","highlights":["Fully adjustable arms","PostureFit SL + forward tilt","12-year warranty from 2023"],"original_price":1312,"asking_price":650,"status":"draft","order":10,"slug":"herman-miller-aeron","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg"],"ratios":[0.85,0.85,0.85,0.85],"research":{"used_price_range":[550,850]}},{"title":"Sonos Arc","subtitle":"Black · Dolby Atmos soundbar · bought June 2020","category":"Audio","condition":"Good","description":"Sonos's original Dolby Atmos soundbar in matte black: eleven drivers, HDMI eARC, AirPlay 2 and Trueplay room tuning. Works on its own or as the front of a Sonos system, and is still fully supported in the Sonos app. Bought new from Sonos in June 2020; power and HDMI cables included.","highlights":["Dolby Atmos, 11 drivers","HDMI eARC","AirPlay 2 & Sonos app"],"original_price":799,"asking_price":375,"status":"draft","order":11,"slug":"sonos-arc","photos":["stock-1.jpg"],"ratios":[1],"research":{"used_price_range":[350,475]}},{"title":"Ellipse Round Ceramic Dining Table","subtitle":"Artico Interiors · anthracite ceramic top, hairpin legs · Ø 120 cm","category":"Furniture","condition":"Good","description":"Round 120 cm dining table with an Italian ceramic top in an anthracite concrete look, on a black powder-coated steel frame with crossed hairpin legs. Seats four comfortably; the ceramic top shrugs off heat and scratches. Comes apart for transport.","highlights":["Ø 120 cm, seats 4","Italian ceramic top","Black hairpin legs","Made in Italy"],"original_price":580,"asking_price":220,"status":"draft","order":12,"slug":"ellipse-ceramic-dining-table","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg"],"ratios":[1.5,1.5,1.5,1.5],"research":{"used_price_range":[120,300]}},{"title":"House Doctor Must Dining Chair","subtitle":"Black · poplar/beech back, faux-leather seat, steel frame · bought Nov 2024","category":"Furniture","condition":"Good","description":"House Doctor's Must chair in black: a curved bentwood backrest and a padded faux-leather seat on a slim steel frame, a classic shape with a modern edge. Six available, bought from Nordic Nest in November 2024 — take one, a pair or all six (46 × 51.5 × 80 cm).","highlights":["6 available","Faux-leather seat","Bentwood back, steel frame","Under 2 years old"],"original_price":100,"asking_price":40,"price_unit":"each","quantity":6,"set_price":200,"status":"draft","order":13,"slug":"house-doctor-must-chairs","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg","stock-5.jpg","stock-6.jpg"],"ratios":[1,1,1,1,1,1],"research":{"used_price_range":[40,70]}},{"title":"Shaheer Hand-woven Wool Rug","subtitle":"FableRoom · grey & cream flatweave · 140 × 200 cm · bought March 2026","category":"Home","condition":"Good","description":"A hand-woven flatweave rug in soft grey and cream, 80% wool and 20% cotton, with the gentle texture of a proper loom weave. Reversible, so it wears evenly. Bought new from FableRoom in March 2026 — only a few months on the floor.","highlights":["140 × 200 cm","80% wool, hand-woven","Reversible flatweave","A few months old"],"original_price":109,"asking_price":50,"status":"draft","order":14,"slug":"shaheer-wool-rug","photos":["stock-1.jpg","stock-2.jpg","stock-3.jpg","stock-4.jpg"],"ratios":[0.75,0.75,0.75,0.75],"research":{"used_price_range":[30,90]}}],"built":"2026-08-27"};
+// Runtime: renders DATA (injected by build.mjs) into slides and handles navigation.
+const C = DATA.config, P = DATA.products;
+const fmt = new Intl.NumberFormat(C.locale || 'en', { style: 'currency', currency: C.currency || 'EUR', maximumFractionDigits: 0 });
+const num = new Intl.NumberFormat(C.locale || 'en', { maximumFractionDigits: 0 });
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const src = (p, f) => 'products/' + encodeURIComponent(p.slug) + '/' + encodeURIComponent(f);
+const isStock = f => /^stock/i.test(f);
+const money = n => typeof n === 'number' ? esc(fmt.format(n)) : '';
+// Price with its unit when the lot is priced per piece: "£50 each".
+const priced = p => money(p.asking_price) ? money(p.asking_price) + (p.price_unit ? ' ' + esc(p.price_unit) : '') : '';
+// A range with one symbol, following the locale's symbol position: "650 – 900 €" or "$650 – 900".
+const range = (a, b) => { let done = false; return esc(fmt.formatToParts(b).map(t => (t.type === 'integer' || t.type === 'group') ? (done ? '' : (done = true, `${num.format(a)} – ${num.format(b)}`)) : t.value).join('')); };
+const when = new Date(DATA.built || Date.now()).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+const lots = n => `${n} ${n === 1 ? 'lot' : 'lots'}`;
+const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+// Set price for lots sold per piece: "or £200 for all six".
+const setPrice = p => typeof p.set_price === 'number' ? `or ${money(p.set_price)} for ${p.quantity ? `all ${words[p.quantity] || num.format(p.quantity)}` : 'the set'}` : '';
+// Cover grid: pick rows by count, then columns, so every lot fits on one screen.
+const grid = n => { const rows = n <= 4 ? 1 : n <= 10 ? 2 : n <= 18 ? 3 : 4; return { rows, cols: Math.ceil(n / rows) }; };
+
+// Photo grid: up to MAX photos tile the container; the shape follows the count (see deck.css).
+// Two photos sit side by side unless both are landscape, then they stack.
+const MAX = 6;
+const shown = p => Math.min(p.photos.length, MAX);
+const shapeOf = p => shown(p) === 2 ? ((p.ratios || []).slice(0, 2).every(r => r > 1.15) ? 'rows' : 'cols') : '';
+const photoGrid = p => {
+  const n = shown(p);
+  if (!n) return '<div class="empty">Photo coming soon</div>';
+  return p.photos.slice(0, n).map((f, i) => {
+    const more = i === n - 1 && p.photos.length > MAX ? p.photos.length - MAX : 0;
+    return `<div class="cell" data-cell="${i}"><img src="${src(p, f)}" alt="${esc(p.title)}${p.photos.length > 1 ? `, photo ${i + 1}` : ''}">${isStock(f) ? '<span class="pill">Stock photo</span>' : ''}${more ? `<span class="pill top">+${more}</span>` : ''}</div>`;
+  }).join('');
+};
+// One photo on its own, with its position and a way back to the grid.
+const photoFocus = (p, i) => `<div class="cell" data-cell="${i}"><img src="${src(p, p.photos[i])}" alt="${esc(p.title)}, photo ${i + 1}">${isStock(p.photos[i]) ? '<span class="pill">Stock photo</span>' : ''}<span class="pill">${i + 1} of ${p.photos.length}</span>${p.photos.length > 1 ? '<button class="pill top" data-grid>Show all</button>' : ''}</div>`;
+
+// Way back to the cover from any other slide: an iOS-style back button (chevron + destination), top-leading.
+const back = '<button class="pill back" data-go="0"><svg viewBox="0 0 10 16" aria-hidden="true"><path d="M8.5 1.5 2 8l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>';
+
+function cover() {
+  const { rows, cols } = grid(P.length);
+  return `<section class="slide cover">
+    <div class="cap"><span>${esc(C.seller || '')}</span><span>·</span><span>${lots(P.length)}</span><span>·</span><span>${esc(when)}</span></div>
+    <h1>${esc(C.title)}</h1>
+    ${C.subtitle ? `<p class="sub">${esc(C.subtitle)}</p>` : ''}
+    <div class="cards" style="--cols:${cols};--rows:${rows}">${P.map((p, i) => `
+      <button class="card" data-go="${i + 1}" aria-label="Lot ${i + 1}: ${esc(p.title)}">
+        <div class="im">${p.photos[0] ? `<img src="${src(p, p.photos[0])}" alt="">` : ''}</div>
+        <div class="t">${esc(p.title)}</div>
+        <div class="p">${priced(p) || 'Price soon'}</div>
+      </button>`).join('')}
+    </div>
+  </section>`;
+}
+
+function product(p, i) {
+  const r = p.research || {};
+  const used = Array.isArray(r.used_price_range) && r.used_price_range.length === 2
+    ? `Seen used at ${range(r.used_price_range[0], r.used_price_range[1])}` : '';
+  const chips = [p.condition, ...(p.highlights || [])].filter(Boolean);
+  const cmp = [setPrice(p) ? `<span class="set">${setPrice(p)}</span>` : '', p.original_price ? `<s>${money(p.original_price)}</s> new` : '', used].filter(Boolean).join('<br>');
+  return `<section class="slide product" data-slug="${esc(p.slug)}">
+    ${back}
+    <div class="body">
+      <div class="photo ${shapeOf(p)}" data-n="${shown(p)}" data-photo>${photoGrid(p)}</div>
+      <div class="head">
+        <div class="cap"><span>Lot ${i + 1} of ${P.length}</span>${p.category ? `<span>·</span><span>${esc(p.category)}</span>` : ''}</div>
+        <h1 class="title ${p.title.length > 34 ? 'long' : ''}">${esc(p.title)}</h1>
+        ${p.subtitle ? `<p class="sub">${esc(p.subtitle)}</p>` : ''}
+      </div>
+      ${p.description ? `<p class="desc">${esc(p.description)}</p>` : '<p class="desc"></p>'}
+      ${chips.length ? `<div class="chips">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : '<div class="chips"></div>'}
+      <div class="buy">
+        ${typeof p.asking_price === 'number' ? `<div class="price">${money(p.asking_price)}${p.price_unit ? `<small>${esc(p.price_unit)}</small>` : ''}</div>` : '<div class="price tbd">Price soon</div>'}
+        ${cmp ? `<div class="cmp">${cmp}</div>` : ''}
+      </div>
+    </div>
+    ${P.length <= 12 ? `<div class="dots" aria-hidden="true">${P.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+  </section>`;
+}
+
+function list() {
+  const two = P.length > 6;
+  const half = Math.ceil(P.length / 2);
+  const groups = two ? [P.slice(0, half), P.slice(half)] : [P];
+  const row = p => { const i = P.indexOf(p); return `
+      <button class="row" data-go="${i + 1}">${p.photos[0] ? `<img class="th" src="${src(p, p.photos[0])}" alt="">` : '<span class="th"></span>'}<span class="t">${esc(p.title)}${p.condition ? `<small>${esc(p.condition)}</small>` : ''}</span><span class="p">${priced(p) || 'Price soon'}</span></button>`; };
+  return `<section class="slide list ${P.length > 16 ? 'dense' : ''}">
+    <div class="cap">${back}<span>${lots(P.length)}</span><span>·</span><span>${esc(when)}</span></div>
+    <h1>Everything</h1>
+    <div class="groups ${two ? 'two' : ''}">${groups.map(g => `<div class="group">${g.map(row).join('')}</div>`).join('')}</div>
+    ${C.contact || C.footnote ? `<div class="foot">${C.contact ? `<span class="btn">${esc(C.contact)}</span>` : '<span></span>'}${C.footnote ? `<span class="cap">${esc(C.footnote)}</span>` : ''}</div>` : ''}
+  </section>`;
+}
+
+document.getElementById('deck').innerHTML = cover() + P.map(product).join('') + list();
+const slides = [...document.querySelectorAll('.slide')];
+let cur = 0;
+
+const lot = slide => P.find(x => x.slug === slide.dataset.slug);
+
+function show(i) {
+  if (slides[cur]) showGrid(slides[cur]);
+  cur = Math.max(0, Math.min(slides.length - 1, i));
+  slides.forEach((s, j) => s.classList.toggle('active', j === cur));
+  history.replaceState(null, '', cur ? '#' + cur : location.pathname);
+  if (matchMedia('(max-width: 820px), (orientation: portrait)').matches) scrollTo(0, 0);
+}
+
+// Photo focus: one photo fills the container; ↑ ↓ or a click move through them; Esc or "Show all" returns to the grid.
+function showPhoto(slide, i) {
+  const p = lot(slide);
+  if (!p || !p.photos.length) return;
+  const box = slide.querySelector('.photo');
+  const idx = (i + p.photos.length) % p.photos.length;
+  box.classList.add('focus');
+  box.classList.remove('cols', 'rows');
+  box.dataset.n = 1;
+  box.dataset.focus = idx;
+  box.innerHTML = photoFocus(p, idx);
+}
+function showGrid(slide) {
+  const p = lot(slide);
+  const box = slide.querySelector('.photo');
+  if (!p || !box || !box.classList.contains('focus')) return;
+  box.classList.remove('focus');
+  if (shapeOf(p)) box.classList.add(shapeOf(p));
+  box.dataset.n = shown(p);
+  delete box.dataset.focus;
+  box.innerHTML = photoGrid(p);
+}
+function cyclePhoto(dir) {
+  const slide = slides[cur], box = slide.querySelector('.photo');
+  if (!box) return;
+  const p = lot(slide);
+  if (!p || !p.photos.length) return;
+  if (!box.classList.contains('focus')) return showPhoto(slide, dir < 0 ? p.photos.length - 1 : 0);
+  showPhoto(slide, +box.dataset.focus + dir);
+}
+
+addEventListener('keydown', e => {
+  const k = e.key;
+  if (['ArrowRight', ' ', 'PageDown', 'Enter'].includes(k)) { if (k === 'Enter' && e.target.closest?.('[data-go], [data-grid]')) return; e.preventDefault(); show(cur + 1); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); show(cur - 1); }
+  else if (k === 'ArrowDown') { e.preventDefault(); cyclePhoto(1); }
+  else if (k === 'ArrowUp') { e.preventDefault(); cyclePhoto(-1); }
+  else if (k === 'Escape') showGrid(slides[cur]);
+  else if (k === 'Home' || k.toLowerCase() === 'o') show(0);
+  else if (k === 'End' || k.toLowerCase() === 'l') show(slides.length - 1);
+});
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if (go) return show(+go.dataset.go);
+  if (e.target.closest('[data-grid]')) return showGrid(slides[cur]);
+  const cell = e.target.closest('[data-cell]');
+  if (!cell) return;
+  const box = cell.closest('.photo');
+  if (box.classList.contains('focus')) cyclePhoto(1); else showPhoto(slides[cur], +cell.dataset.cell);
+});
+let tx = null;
+addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+addEventListener('touchend', e => {
+  if (tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  tx = null;
+});
+show(parseInt(location.hash.slice(1)) || 0);
+
+</script>
+</body>
+</html>
