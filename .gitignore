@@ -1,0 +1,4 @@
+.DS_Store
+inbox/*
+!inbox/README.md
+site/
