@@ -212,7 +212,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .scale .track { position: relative; flex: 0 0 var(--switch-w); display: flex; justify-content: space-between; align-items: center; height: 2.1rem; padding: 0 .95rem; border-radius: var(--r-pill); background: var(--fill); transition: background var(--dur-fast) var(--ease); }
 .scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); }
 .scale .track b { position: absolute; z-index: 2; top: .1rem; left: calc(.1rem + var(--lvl, 0) / 4 * (100% - 2.1rem)); width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--knob); box-shadow: var(--knob-shadow); font: normal 1.45rem/1.9rem var(--font); text-align: center; transition: left var(--dur-fast) var(--ease); }
-.scale .lbl { flex: 1; min-width: 0; transition: color var(--dur-fast) var(--ease); }   /* the row is sized explicitly (track + gap + 6.6em of word): Safari mis-sizes a max-content flex row and let the word spill past the edge */
+.scale .lbl { flex: 1; min-width: 0; text-align: right; transition: color var(--dur-fast) var(--ease); }   /* the word leads, right-aligned against the switch, so the switch itself ends at the column's edge whatever the word; the row is sized explicitly (track + gap + 6.6em) because Safari mis-sizes a max-content flex row */
 .scale.top .track { background: var(--green); }
 .scale.top .track i { background: var(--on-tint); opacity: .55; }
 .scale.top .lbl { color: var(--green); font-weight: 600; }
@@ -284,7 +284,8 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
   .product .head .scale { display: none; }   /* on a lot's page the scale is the face pill in the price bar */
   .cap { flex-wrap: wrap; row-gap: var(--gap-1); }   /* on the list the friends' scale drops under the eyebrow */
   .scale { width: 100%; }
-  .scale .track { flex: 1; }                    /* on a phone the switch takes the row */
+  .scale .track { flex: 1; }                    /* on a phone the row reads like a Settings row: the word on the left, the switch filling the rest */
+  .scale .lbl { flex: 0 0 6.6em; text-align: left; }
   /* Price bar: the price (with the struck strangers' price beside it once the scale has moved) and one compare line on the left, the face pill on the right. */
   .buy { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 12px var(--safe-x) 26px; background: var(--bg); border-top: 1px solid var(--separator); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "price pill" "cmp pill"; align-items: center; column-gap: var(--gap-2); }
   .price { grid-area: price; }
@@ -348,8 +349,8 @@ const moves = p => Number.isFinite(p.best_price) && p.best_price < p.asking_pric
 const bestSet = p => typeof p.set_price === 'number' && p.asking_price ? nice(p.set_price * (Number.isFinite(p.best_price) ? p.best_price : p.asking_price) / p.asking_price) : p.set_price;
 // Cards and list rows: "£50 each", and once the scale moves "£45 each <s>£50</s>"; a lot at 0 is "Free".
 const priced = p => p.asking_price === 0 ? 'Free' : typeof p.asking_price === 'number' ? `${mv(p.asking_price, p.best_price)}${p.price_unit ? ' ' + esc(p.price_unit) : ''}${moves(p) ? `<s class="fr">${money(p.asking_price)}</s>` : ''}` : '';
-// The scale itself: one on every slide, top-right — a stretched switch (five dots, a face for a thumb) with the word outside it.
-const scale = `<div class="scale" data-scale role="slider" tabindex="0" aria-label="How much of a friend are you?" aria-valuemin="0" aria-valuemax="${TOP}" aria-valuenow="0" aria-valuetext="${LEVELS[0]}"><span class="track" data-track>${LEVELS.map(() => '<i></i>').join('')}<b class="face" aria-hidden="true">${FACES[0]}</b></span><span class="lbl">${LEVELS[0]}</span></div>`;
+// The scale itself: one on every slide, top-right — the word, then a stretched switch (five dots, a face for a thumb) flush with the column's edge.
+const scale = `<div class="scale" data-scale role="slider" tabindex="0" aria-label="How much of a friend are you?" aria-valuemin="0" aria-valuemax="${TOP}" aria-valuenow="0" aria-valuetext="${LEVELS[0]}"><span class="lbl">${LEVELS[0]}</span><span class="track" data-track>${LEVELS.map(() => '<i></i>').join('')}<b class="face" aria-hidden="true">${FACES[0]}</b></span></div>`;
 // Its compact form, in a lot's price bar on phones: the face and the word; a tap steps to the next stop.
 const pill = `<button class="fp" data-scale aria-label="How much of a friend are you?"><span class="face" aria-hidden="true">${FACES[0]}</span><span class="lbl">${LEVELS[0]}</span></button>`;
 // A range with one symbol, following the locale's symbol position: "650 – 900 €" or "$650 – 900".
