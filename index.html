@@ -34,6 +34,8 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
   --material:  rgba(255, 255, 255, .72);/* pills over photos (with backdrop blur) */
   --tab-on:    #FFFFFF;                 /* the selected tab on the cover's segmented control */
   --green:     #34C759;                 /* system green — used for exactly one thing: the friends' scale at "Best friend" */
+  --knob:      #FFFFFF;                 /* the friends' scale's thumb — white in both appearances, like a system switch */
+  --knob-shadow: 0 .15em .4em rgba(0, 0, 0, .18), 0 0 .05em rgba(0, 0, 0, .08);
   --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .12); /* focused card lift — a hint of depth, not a pop */
 
   /* Type · system font (SF on Apple devices), tvOS scale at 1080p */
@@ -84,6 +86,8 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
     --material:  rgba(30, 30, 32, .72);
     --tab-on:    rgba(120, 120, 128, .36);
     --green:     #30D158;
+    --knob:      #FFFFFF;
+    --knob-shadow: 0 .15em .4em rgba(0, 0, 0, .35), 0 0 .05em rgba(0, 0, 0, .2);
     --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
   }
 }
@@ -100,6 +104,8 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
   --material:  rgba(30, 30, 32, .72);
   --tab-on:    rgba(120, 120, 128, .36);
   --green:     #30D158;
+  --knob:      #FFFFFF;
+  --knob-shadow: 0 .15em .4em rgba(0, 0, 0, .35), 0 0 .05em rgba(0, 0, 0, .2);
   --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
 }
 
@@ -196,23 +202,19 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .cmp .set { color: var(--label); }
 .cmp > span { display: block; }
 
-/* The friends' scale: one stepped slider per slide, top-right, as wide as the text column — "How much of a friend are you?"
-   A label, then a track: a thin line with five dots and a knob that snaps to them; the line and dots up to the knob fill in label
-   colour; every moving figure (.n) follows. --lvl is 0–4 (five stops), set by deck.js. At the last stop (.top, "Best friend") the whole
-   pill turns green — the deck's one joke and its one meaningful colour. The track's padding puts the dots' centres under the knob's. */
-.scale { display: flex; align-items: center; gap: .8em; width: calc(100vw - var(--text-x) - var(--safe-x)); margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; padding: .4em .5em .4em 1em; border-radius: var(--r-pill); background: var(--fill); color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
-.scale .lbl { min-width: 4.6em; }
-.scale .track { position: relative; flex: 1; display: flex; justify-content: space-between; align-items: center; height: 1.35em; padding: 0 .425em; }
-.scale .track::before, .scale .track::after { content: ""; position: absolute; top: 50%; left: .675em; height: .18em; margin-top: -.09em; border-radius: var(--r-pill); }
-.scale .track::before { right: .675em; background: var(--label-3); }
-.scale .track::after { width: calc(var(--lvl, 0) / 4 * (100% - 1.35em)); background: var(--label); transition: width var(--dur-fast) var(--ease); }
-.scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease); }
-.scale .track i.on { background: var(--label); }
-.scale .track b { position: absolute; z-index: 2; top: 0; left: calc(var(--lvl, 0) / 4 * (100% - 1.35em)); width: 1.35em; height: 1.35em; border-radius: 50%; background: var(--label); box-shadow: 0 0 0 .15em var(--bg); transition: left var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease); }
-.scale.top { background: var(--green); color: #FFFFFF; }
-.scale.top .track::before { background: rgba(255, 255, 255, .4); }
-.scale.top .track::after, .scale.top .track i, .scale.top .track b { background: #FFFFFF; }
-.scale.top .track b { box-shadow: 0 0 0 .15em var(--green); }
+/* The friends' scale: one switch per slide, top-right, as wide as the text column — "How much of a friend are you?"
+   An iOS switch pulled wide: a round track with five dots and a thumb that snaps to them, carrying a face that gets happier stop
+   by stop (deck.js writes it); the word ("Stranger" … "Best friend") sits outside, to the right, and every moving figure (.n)
+   follows. --lvl is 0–4 (five stops), set by deck.js. At the last stop (.top, "Best friend") the switch turns on — green, the
+   deck's one meaningful colour. The track's padding puts the dots' centres under the thumb's (thumb 1.9rem, inset .1rem). */
+.scale { display: flex; align-items: center; gap: .9em; width: calc(100vw - var(--text-x) - var(--safe-x)); margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
+.scale .track { position: relative; flex: 1; display: flex; justify-content: space-between; align-items: center; height: 2.1rem; padding: 0 .95rem; border-radius: var(--r-pill); background: var(--fill); transition: background var(--dur-fast) var(--ease); }
+.scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); }
+.scale .track b { position: absolute; z-index: 2; top: .1rem; left: calc(.1rem + var(--lvl, 0) / 4 * (100% - 2.1rem)); width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--knob); box-shadow: var(--knob-shadow); font: normal 1.45rem/1.9rem var(--font); text-align: center; transition: left var(--dur-fast) var(--ease); }
+.scale .lbl { min-width: 6.2em; transition: color var(--dur-fast) var(--ease); }
+.scale.top .track { background: var(--green); }
+.scale.top .track i { background: var(--on-tint); opacity: .55; }
+.scale.top .lbl { color: var(--green); font-weight: 600; }
 .brand .scale { align-self: center; }
 .head .scale { margin-bottom: var(--gap-1); }
 html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
@@ -262,7 +264,7 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 
 /* ── Motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .slide, .card, .scale, .scale .track b, .scale .track i, .scale .track::after { transition: none; }
+  .slide, .card, .scale .track, .scale .track b, .scale .track i, .scale .lbl { transition: none; }
   .slide { transform: none; }
   .card:hover, .card:focus-visible { transform: none; }
 }
@@ -312,6 +314,7 @@ const money = n => typeof n === 'number' ? esc(fmt.format(n)) : '';
 // the low end of "Seen used at", never under Fede's floor — build.mjs derives it). The stops between are evenly spaced and
 // rounded to friendly numbers (whole pounds under 50, fives to 199, tens from 200). Free stays Free.
 const LEVELS = ['Stranger', "We've met", 'Friend', 'Good friend', 'Best friend'];
+const FACES = ['😶', '🙂', '😊', '😄', '🥰'];   // the switch's thumb is you, one face per stop
 const TOP = LEVELS.length - 1;
 const nice = n => n < 50 ? Math.round(n) : n < 200 ? Math.round(n / 5) * 5 : Math.round(n / 10) * 10;
 const at = (a, b, lvl) => !Number.isFinite(a) || !Number.isFinite(b) || !a || lvl <= 0 ? a : lvl >= TOP ? b : Math.min(a, Math.max(b, nice(a - (a - b) * lvl / TOP)));
@@ -322,8 +325,8 @@ const moves = p => Number.isFinite(p.best_price) && p.best_price < p.asking_pric
 const bestSet = p => typeof p.set_price === 'number' && p.asking_price ? nice(p.set_price * (Number.isFinite(p.best_price) ? p.best_price : p.asking_price) / p.asking_price) : p.set_price;
 // Cards and list rows: "£50 each", and once the scale moves "£45 each <s>£50</s>"; a lot at 0 is "Free".
 const priced = p => p.asking_price === 0 ? 'Free' : typeof p.asking_price === 'number' ? `${mv(p.asking_price, p.best_price)}${p.price_unit ? ' ' + esc(p.price_unit) : ''}${moves(p) ? `<s class="fr">${money(p.asking_price)}</s>` : ''}` : '';
-// The scale itself: one on every slide, top-right on the eyebrow's line — a label and a dotted track with a knob.
-const scale = `<div class="scale" data-scale role="slider" tabindex="0" aria-label="How much of a friend are you?" aria-valuemin="0" aria-valuemax="${TOP}" aria-valuenow="0" aria-valuetext="${LEVELS[0]}"><span class="lbl">${LEVELS[0]}</span><span class="track" data-track>${LEVELS.map(() => '<i></i>').join('')}<b></b></span></div>`;
+// The scale itself: one on every slide, top-right — a stretched switch (five dots, a face for a thumb) with the word outside it.
+const scale = `<div class="scale" data-scale role="slider" tabindex="0" aria-label="How much of a friend are you?" aria-valuemin="0" aria-valuemax="${TOP}" aria-valuenow="0" aria-valuetext="${LEVELS[0]}"><span class="track" data-track>${LEVELS.map(() => '<i></i>').join('')}<b class="face" aria-hidden="true">${FACES[0]}</b></span><span class="lbl">${LEVELS[0]}</span></div>`;
 // A range with one symbol, following the locale's symbol position: "650 – 900 €" or "$650 – 900".
 const range = (a, b) => { let done = false; return esc(fmt.formatToParts(b).map(t => (t.type === 'integer' || t.type === 'group') ? (done ? '' : (done = true, `${num.format(a)} – ${num.format(b)}`)) : t.value).join('')); };
 const when = new Date(DATA.built || Date.now()).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
@@ -449,7 +452,7 @@ function setLevel(l) {
     s.setAttribute('aria-valuenow', level);
     s.setAttribute('aria-valuetext', LEVELS[level]);
     s.querySelector('.lbl').textContent = LEVELS[level];
-    s.querySelectorAll('.track i').forEach((d, j) => d.classList.toggle('on', j <= level));
+    s.querySelector('.face').textContent = FACES[level];
   });
   document.querySelectorAll('.n[data-a]').forEach(n => { n.textContent = money(at(+n.dataset.a, +n.dataset.b, level)); });
   try { localStorage.setItem('friend-level', level); } catch {}
