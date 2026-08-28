@@ -137,7 +137,7 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
 }
 
 /* Components. Colors and sizes come from tokens.css only. */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; background: var(--bg); color: var(--label); font-family: var(--font); overflow: hidden; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
 :focus-visible { outline: max(3px, .2vw) solid var(--tint); outline-offset: .3vw; }
@@ -201,6 +201,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .cmp { font-size: var(--fs-body); color: var(--label-2); line-height: 1.35; }
 .cmp s { text-decoration-thickness: .08em; }
 .cmp .set { color: var(--label); }
+.range { white-space: nowrap; }   /* "£750 – 1,250" stays together */
 .cmp > span { display: block; }
 
 /* The friends' scale: one switch per slide, top-right, as wide as the text column — "How much of a friend are you?"
@@ -244,7 +245,9 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 .room { display: none; }
 .cards { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: var(--gap-2); padding: var(--gap-1) var(--gap-1) var(--gap-2); }
 .card { background: var(--container); border-radius: var(--r-lg); padding: var(--gap-2); display: flex; flex-direction: column; min-height: 0; transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
-.card:hover, .card:focus-visible { transform: scale(1.04); box-shadow: var(--shadow); z-index: 1; }
+.card:focus-visible { transform: scale(1.04); box-shadow: var(--shadow); z-index: 1; }
+@media (hover: hover) { .card:hover { transform: scale(1.04); box-shadow: var(--shadow); z-index: 1; } }
+@media (hover: none) { .card:active, .row:active, .tab:active, .photo .cell:active { opacity: .6; } }   /* touch: a press dims, like a Settings row */
 .card .im { flex: 1; min-height: 0; border-radius: var(--r-md); overflow: hidden; background: var(--fill); }
 .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card .t { font-size: var(--fs-card); font-weight: 600; letter-spacing: -.01em; line-height: 1.2; margin-top: var(--gap-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -274,11 +277,14 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 
 /* ── Phones / portrait windows ──────────────────────────── */
 @media (max-width: 820px), (orientation: portrait) {
-  html, body { overflow: auto; }
-  .slide { position: relative; inset: auto; opacity: 1; transform: none; display: none; min-height: 100vh; transition: none; }
+  html, body { height: auto; overflow: visible; }
+  body { min-height: 100vh; min-height: 100dvh; touch-action: pan-y pinch-zoom; }
+  .slide { position: relative; inset: auto; opacity: 1; transform: none; display: none; min-height: 100vh; min-height: 100dvh; transition: none; }
   .slide.active { display: block; }
   .slide.cover.active, .slide.list.active { display: flex; }
-  .body { position: relative; inset: auto; display: block; padding: var(--safe-y) var(--safe-x) 120px; }
+  .body { position: relative; inset: auto; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: calc(var(--safe-y) + env(safe-area-inset-top, 0px)) var(--safe-x) 0; }
+  .body > * { flex: none; }
+  .body > :nth-last-child(2) { margin-bottom: var(--gap-4); }   /* room between the last row and the price bar when they meet */
   .photo { height: 52vh; }
   .head { margin-top: var(--gap-4); }
   .product .head .scale { display: none; }   /* on a lot's page the scale is the face pill in the price bar */
@@ -287,7 +293,7 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
   .scale .track { flex: 1; }                    /* on a phone the row reads like a Settings row: the word on the left, the switch filling the rest */
   .scale .lbl { flex: 0 0 6.6em; text-align: left; }
   /* Price bar: the price (with the struck strangers' price beside it once the scale has moved) and one compare line on the left, the face pill on the right. */
-  .buy { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 12px var(--safe-x) 26px; background: var(--bg); border-top: 1px solid var(--separator); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "price pill" "cmp pill"; align-items: center; column-gap: var(--gap-2); }
+  .buy { position: sticky; bottom: 0; z-index: 3; align-self: stretch; margin: auto calc(-1 * var(--safe-x)) 0; padding: 12px var(--safe-x) max(14px, env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--separator); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "price pill" "cmp pill"; align-items: center; column-gap: var(--gap-2); }
   .price { grid-area: price; }
   .price .was { display: inline; font-size: var(--fs-headline); font-weight: 400; letter-spacing: -.01em; color: var(--label-2); margin-left: 6px; vertical-align: .25em; }
   .cmp { grid-area: cmp; font-size: var(--fs-caption); margin-top: 5px; }
@@ -353,8 +359,9 @@ const priced = p => p.asking_price === 0 ? 'Free' : typeof p.asking_price === 'n
 const scale = `<div class="scale" data-scale role="slider" tabindex="0" aria-label="How much of a friend are you?" aria-valuemin="0" aria-valuemax="${TOP}" aria-valuenow="0" aria-valuetext="${LEVELS[0]}"><span class="lbl">${LEVELS[0]}</span><span class="track" data-track>${LEVELS.map(() => '<i></i>').join('')}<b class="face" aria-hidden="true">${FACES[0]}</b></span></div>`;
 // Its compact form, in a lot's price bar on phones: the face and the word; a tap steps to the next stop.
 const pill = `<button class="fp" data-scale aria-label="How much of a friend are you?"><span class="face" aria-hidden="true">${FACES[0]}</span><span class="lbl">${LEVELS[0]}</span></button>`;
-// A range with one symbol, following the locale's symbol position: "650 – 900 €" or "$650 – 900".
-const range = (a, b) => { let done = false; return esc(fmt.formatToParts(b).map(t => (t.type === 'integer' || t.type === 'group') ? (done ? '' : (done = true, `${num.format(a)} – ${num.format(b)}`)) : t.value).join('')); };
+// A range with one symbol, following the locale's symbol position: "650 – 900 €" or "$650 – 900" — in a .range span that
+// never wraps, so a phone does not put "1,250" on a line of its own (a dash is a break opportunity even without spaces).
+const range = (a, b) => { let done = false; return `<span class="range">${esc(fmt.formatToParts(b).map(t => (t.type === 'integer' || t.type === 'group') ? (done ? '' : (done = true, `${num.format(a)} – ${num.format(b)}`)) : t.value).join(''))}</span>`; };
 const when = new Date(DATA.built || Date.now()).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 const lots = n => `${n} ${n === 1 ? 'lot' : 'lots'}`;
 const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
@@ -581,15 +588,29 @@ document.addEventListener('click', e => {
   const box = cell.closest('.photo');
   if (box.classList.contains('focus')) cyclePhoto(1); else showPhoto(slides[cur], +cell.dataset.cell);
 });
-let tx = null;
-// A swipe inside the pager (on a TV-sized touch screen) scrolls the rooms natively; it must not also change slide.
-addEventListener('touchstart', e => { tx = (!phone() && e.target.closest('.pager')) || e.target.closest('[data-scale]') ? null : e.touches[0].clientX; }, { passive: true });
+// Swipe to change lot. The gesture locks to an axis in its first centimetre, like a scroll view: only a clearly sideways
+// one counts, so scrolling the page (even a slightly diagonal scroll) never changes slide. A swipe inside the pager (on a
+// TV-sized touch screen) scrolls the rooms natively, the switch handles its own touches, and a second finger cancels.
+let tx = null, ty = null, axis = null;
+addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  tx = e.touches.length > 1 || (!phone() && e.target.closest('.pager')) || e.target.closest('[data-scale]') ? null : t.clientX;
+  ty = t.clientY; axis = null;
+}, { passive: true });
+addEventListener('touchmove', e => {
+  if (tx === null || axis) return;
+  if (e.touches.length > 1) { tx = null; return; }
+  const dx = Math.abs(e.touches[0].clientX - tx), dy = Math.abs(e.touches[0].clientY - ty);
+  if (Math.max(dx, dy) < 10) return;
+  axis = dx > dy * 1.5 ? 'x' : 'y';
+}, { passive: true });
 addEventListener('touchend', e => {
   if (tx === null) return;
-  const dx = e.changedTouches[0].clientX - tx;
-  if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
-  tx = null;
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (axis === 'x' && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2) show(cur + (dx < 0 ? 1 : -1));
+  tx = null; axis = null;
 });
+addEventListener('touchcancel', () => { tx = null; axis = null; });
 show(parseInt(location.hash.slice(1)) || 0);
 
 </script>
