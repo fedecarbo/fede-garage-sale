@@ -208,11 +208,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
    by stop (deck.js writes it); the word ("Stranger" … "Best friend") sits outside, to the right, and every moving figure (.n)
    follows. --lvl is 0–4 (five stops), set by deck.js. At the last stop (.top, "Best friend") the switch turns on — green, the
    deck's one meaningful colour. The track is --switch-w wide (not the whole column — Fede, 2026-08-28: "don't stretch it too much"), the row right-aligned; on phones it takes the row. The track's padding puts the dots' centres under the thumb's (thumb 1.9rem, inset .1rem). */
-.scale { display: flex; align-items: center; gap: .9em; width: max-content; margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
+.scale { display: flex; align-items: center; gap: .9em; width: calc(var(--switch-w) + .9em + 6.6em); margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
 .scale .track { position: relative; flex: 0 0 var(--switch-w); display: flex; justify-content: space-between; align-items: center; height: 2.1rem; padding: 0 .95rem; border-radius: var(--r-pill); background: var(--fill); transition: background var(--dur-fast) var(--ease); }
 .scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); }
 .scale .track b { position: absolute; z-index: 2; top: .1rem; left: calc(.1rem + var(--lvl, 0) / 4 * (100% - 2.1rem)); width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--knob); box-shadow: var(--knob-shadow); font: normal 1.45rem/1.9rem var(--font); text-align: center; transition: left var(--dur-fast) var(--ease); }
-.scale .lbl { min-width: 6.2em; transition: color var(--dur-fast) var(--ease); }
+.scale .lbl { flex: 1; min-width: 0; transition: color var(--dur-fast) var(--ease); }   /* the row is sized explicitly (track + gap + 6.6em of word): Safari mis-sizes a max-content flex row and let the word spill past the edge */
 .scale.top .track { background: var(--green); }
 .scale.top .track i { background: var(--on-tint); opacity: .55; }
 .scale.top .lbl { color: var(--green); font-weight: 600; }
