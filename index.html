@@ -61,6 +61,7 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
   --grid-gap: .45rem;    /* between photos in the photo grid */
   --thumb: 3.4rem;       /* list thumbnail */
   --dot: .55rem;         /* page dot */
+  --switch-w: 15rem;     /* the friends' switch track (≈ 290 px at 1080p); phones ignore it and take the row */
 
   /* Shape + motion */
   --r-lg: 1.25rem;       /* 24 px · containers, cards, groups */
@@ -128,7 +129,6 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
     --gap-3: 16px;
     --gap-4: 20px;
     --thumb: 44px;
-    --bar-h: 50px;         /* the cover's sticky room bar — rooms scroll to sit under it */
     --grid-gap: 4px;
     --r-lg: 20px;
     --r-md: 10px;
@@ -207,9 +207,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
    An iOS switch pulled wide: a round track with five dots and a thumb that snaps to them, carrying a face that gets happier stop
    by stop (deck.js writes it); the word ("Stranger" … "Best friend") sits outside, to the right, and every moving figure (.n)
    follows. --lvl is 0–4 (five stops), set by deck.js. At the last stop (.top, "Best friend") the switch turns on — green, the
-   deck's one meaningful colour. The track's padding puts the dots' centres under the thumb's (thumb 1.9rem, inset .1rem). */
-.scale { display: flex; align-items: center; gap: .9em; width: calc(100vw - var(--text-x) - var(--safe-x)); margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
-.scale .track { position: relative; flex: 1; display: flex; justify-content: space-between; align-items: center; height: 2.1rem; padding: 0 .95rem; border-radius: var(--r-pill); background: var(--fill); transition: background var(--dur-fast) var(--ease); }
+   deck's one meaningful colour. The track is --switch-w wide (not the whole column — Fede, 2026-08-28: "don't stretch it too much"), the row right-aligned; on phones it takes the row. The track's padding puts the dots' centres under the thumb's (thumb 1.9rem, inset .1rem). */
+.scale { display: flex; align-items: center; gap: .9em; width: max-content; margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
+.scale .track { position: relative; flex: 0 0 var(--switch-w); display: flex; justify-content: space-between; align-items: center; height: 2.1rem; padding: 0 .95rem; border-radius: var(--r-pill); background: var(--fill); transition: background var(--dur-fast) var(--ease); }
 .scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); }
 .scale .track b { position: absolute; z-index: 2; top: .1rem; left: calc(.1rem + var(--lvl, 0) / 4 * (100% - 2.1rem)); width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--knob); box-shadow: var(--knob-shadow); font: normal 1.45rem/1.9rem var(--font); text-align: center; transition: left var(--dur-fast) var(--ease); }
 .scale .lbl { min-width: 6.2em; transition: color var(--dur-fast) var(--ease); }
@@ -232,8 +232,8 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 .brand { display: flex; align-items: baseline; gap: var(--gap-2); }
 .brand .name { font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.02em; line-height: 1.2; }
 /* Tab bar: a segmented control naming the rooms; the selected tab is a lifted pill. */
-.tabs { display: inline-flex; align-self: flex-start; max-width: 100%; margin-top: var(--gap-3); padding: .35rem; background: var(--container); border-radius: var(--r-pill); }
-.tabrow { position: relative; display: flex; gap: .4em; }
+.tabs { display: inline-flex; align-self: flex-start; max-width: 100%; gap: .4em; margin-top: var(--gap-3); padding: .35rem; background: var(--container); border-radius: var(--r-pill); }
+.tab .c { display: none; }   /* the count and chevron show only on phones, where the tabs are a room index */
 .tab { font-size: var(--fs-body); font-weight: 500; line-height: 1; padding: .5em 1em; border-radius: var(--r-pill); color: var(--label-2); white-space: nowrap; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
 .tab.on { background: var(--tab-on); color: var(--label); box-shadow: var(--shadow); }
 .fp, .price .was { display: none; }   /* phones only: the face pill in a lot's price bar, and the struck strangers' price beside the number */
@@ -284,6 +284,7 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
   .product .head .scale { display: none; }   /* on a lot's page the scale is the face pill in the price bar */
   .cap { flex-wrap: wrap; row-gap: var(--gap-1); }   /* on the list the friends' scale drops under the eyebrow */
   .scale { width: 100%; }
+  .scale .track { flex: 1; }                    /* on a phone the switch takes the row */
   /* Price bar: the price (with the struck strangers' price beside it once the scale has moved) and one compare line on the left, the face pill on the right. */
   .buy { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 12px var(--safe-x) 26px; background: var(--bg); border-top: 1px solid var(--separator); display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "price pill" "cmp pill"; align-items: center; column-gap: var(--gap-2); }
   .price { grid-area: price; }
@@ -296,19 +297,19 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
   .fp .face { width: 28px; height: 28px; border-radius: 50%; background: var(--knob); box-shadow: var(--knob-shadow); font: normal 20px/28px var(--font); text-align: center; }
   .fp.top { background: var(--green); color: var(--on-tint); }
   .dots { display: none; }
-  /* Cover: an iOS large title, the switch, then the rooms as chips in a bar that sticks to the top and follows the scroll. */
+  /* Cover: an iOS large title, the switch, then the rooms as an inset list with their counts — tap one and the page scrolls to it. Nothing scrolls sideways. */
   .brand { display: block; }
   .brand .name { font-size: var(--fs-large); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
   .brand .cap { margin-top: 3px; font-size: var(--fs-body); }
   .brand .scale { margin-top: 14px; }
-  .tabs { position: sticky; top: 0; z-index: 5; display: block; align-self: stretch; max-width: none; margin: var(--gap-2) calc(-1 * var(--safe-x)) 0; padding: 8px var(--safe-x); border-radius: 0; background: var(--material); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-  .tabrow { gap: var(--gap-1); overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); }
-  .tabrow.end { mask-image: none; -webkit-mask-image: none; }
-  .tabrow::-webkit-scrollbar { display: none; }
-  .tab { padding: 9px 14px; background: var(--fill); color: var(--label-2); }
-  .tab.on { background: var(--label); color: var(--bg); box-shadow: none; }
+  .tabs { display: block; align-self: stretch; max-width: none; gap: 0; margin-top: var(--gap-3); padding: 0 var(--gap-3); background: var(--container); border-radius: var(--r-lg); }
+  .tab { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: var(--gap-2); min-height: 46px; padding: 0; border-top: 1px solid var(--separator); border-radius: 0; font-size: var(--fs-headline); color: var(--label); background: none; }
+  .tab:first-child { border-top: 0; }
+  .tab.on { background: none; color: var(--label); box-shadow: none; }
+  .tab .c { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-body); color: var(--label-2); }
+  .tab .c svg { width: 8px; height: 13px; display: block; }
   .pager { display: block; overflow: visible; flex: none; scroll-snap-type: none; }
-  .page { display: block; margin-top: var(--gap-4); scroll-margin-top: calc(var(--bar-h) + var(--gap-1)); }
+  .page { display: block; margin-top: var(--gap-4); scroll-margin-top: var(--gap-3); }
   .room { display: block; font-size: var(--fs-title-long); font-weight: 600; letter-spacing: -.02em; line-height: 1.1; margin: 0 var(--gap-1) var(--gap-1); }
   .room small { font-size: var(--fs-body); font-weight: 500; color: var(--label-2); margin-left: 8px; letter-spacing: 0; }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; flex: none; }
@@ -386,6 +387,8 @@ const photoGrid = p => {
 const photoFocus = (p, i) => `<div class="cell" data-cell="${i}"><img src="${src(p, p.photos[i])}" alt="${esc(p.title)}, photo ${i + 1}">${isStock(p.photos[i]) ? '<span class="pill">Stock photo</span>' : ''}<span class="pill">${i + 1} of ${p.photos.length}</span>${p.photos.length > 1 ? '<button class="pill top" data-grid>Show all</button>' : ''}</div>`;
 
 // Way back to the cover from any other slide: an iOS-style back button (chevron + destination), top-leading.
+// A right-pointing chevron: the room index rows on phones.
+const chevron = '<svg viewBox="0 0 10 16" aria-hidden="true"><path d="M1.5 1.5 8 8l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const back = '<button class="pill back" data-go="0"><svg viewBox="0 0 10 16" aria-hidden="true"><path d="M8.5 1.5 2 8l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>';
 
 // Cover: a one-row brand line, a tab bar naming the rooms, and a pager with one page of cards per room.
@@ -398,7 +401,7 @@ const card = p => { const i = P.indexOf(p); return `
 function cover() {
   return `<section class="slide cover">
     <div class="brand"><span class="name">${esc(C.title)}</span><span class="cap"><span>${lots(P.length)}</span><span>·</span><span>${esc(when)}</span></span>${scale}</div>
-    <div class="tabs" role="tablist"><div class="tabrow" data-tabrow>${sections.map((s, i) => `<button class="tab ${i ? '' : 'on'}" role="tab" aria-selected="${!i}" data-tab="${i}">${esc(s.name)}</button>`).join('')}</div></div>
+    <div class="tabs" role="tablist">${sections.map((s, i) => `<button class="tab ${i ? '' : 'on'}" role="tab" aria-selected="${!i}" data-tab="${i}">${esc(s.name)}<span class="c">${s.lots.length}${chevron}</span></button>`).join('')}</div>
     <div class="pager">${sections.map((s, i) => `
       <div class="page" data-page="${i}">
         <h2 class="room">${esc(s.name)}<small>${s.lots.length}</small></h2>
@@ -490,44 +493,17 @@ addEventListener('pointermove', e => { if (dragging) setLevel(levelAt(dragging, 
 addEventListener('pointerup', () => { dragging = null; });
 addEventListener('pointercancel', () => { dragging = null; });
 
-// Cover tabs: the pager snaps sideways to the room's page (on phones the rooms stack under a sticky bar of chips, so it scrolls down to the room instead).
-const pager = document.querySelector('.pager'), tabsBar = document.querySelector('.tabs'), tabrow = document.querySelector('[data-tabrow]'), tabs = [...document.querySelectorAll('.tab')], pages = [...document.querySelectorAll('.page')];
+// Cover tabs: the pager snaps sideways to the room's page (on phones the rooms stack under a room index, so it scrolls down to the room instead).
+const pager = document.querySelector('.pager'), tabs = [...document.querySelectorAll('.tab')], pages = [...document.querySelectorAll('.page')];
 let tab = 0;
-// Mark a tab as the current one — and, on phones, bring its chip into view in the scrolling row (never scrollIntoView: that would move the page too).
-function markTab(i) {
-  tab = i;
-  tabs.forEach((t, j) => { t.classList.toggle('on', j === tab); t.setAttribute('aria-selected', j === tab); });
-  if (!phone() || !tabrow || !tabs[tab]) return;
-  const t = tabs[tab], l = t.offsetLeft - 16, r = t.offsetLeft + t.offsetWidth + 16;
-  if (l < tabrow.scrollLeft) tabrow.scrollTo({ left: l, behavior: 'smooth' });
-  else if (r > tabrow.scrollLeft + tabrow.clientWidth) tabrow.scrollTo({ left: r - tabrow.clientWidth, behavior: 'smooth' });
-}
 function showTab(i, smooth = true) {
   if (!pages.length) return;
-  markTab(Math.max(0, Math.min(pages.length - 1, i)));
+  tab = Math.max(0, Math.min(pages.length - 1, i));
+  tabs.forEach((t, j) => { t.classList.toggle('on', j === tab); t.setAttribute('aria-selected', j === tab); });
   const behavior = smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant';
   if (phone()) pages[tab].scrollIntoView({ behavior, block: 'start' });
   else pager.scrollTo({ left: tab * pager.clientWidth, behavior });
 }
-// On phones the page scrolls past the rooms: light up the chip of the room under the bar (the last one once the page bottoms out).
-// The body is the scroller there (html and body are 100% high with overflow auto), so listen in the capture phase and measure against the viewport.
-let spyT;
-document.addEventListener('scroll', () => {
-  if (!phone() || cur !== 0 || !pages.length) return;
-  clearTimeout(spyT);
-  spyT = setTimeout(() => {
-    const top = (tabsBar ? tabsBar.offsetHeight : 0) + 24;
-    let i = 0;
-    pages.forEach((p, j) => { if (p.getBoundingClientRect().top <= top) i = j; });
-    if (pages[pages.length - 1].getBoundingClientRect().bottom <= innerHeight + 2) i = pages.length - 1;
-    if (i !== tab) markTab(i);
-  }, 60);
-}, { capture: true, passive: true });
-// The chip row fades at its right edge until it has been scrolled to the end.
-const rowEnd = () => tabrow && tabrow.classList.toggle('end', tabrow.scrollLeft + tabrow.clientWidth >= tabrow.scrollWidth - 2);
-tabrow?.addEventListener('scroll', rowEnd, { passive: true });
-addEventListener('resize', rowEnd);
-rowEnd();
 // A trackpad or finger can move the pager too: follow it once the scroll settles.
 const syncTab = () => { if (phone() || !pages.length) return; const i = Math.round(pager.scrollLeft / pager.clientWidth); if (i !== tab) showTab(i, false); };
 let st;
