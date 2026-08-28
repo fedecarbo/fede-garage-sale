@@ -33,6 +33,7 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
   --on-tint:   #FFFFFF;
   --material:  rgba(255, 255, 255, .72);/* pills over photos (with backdrop blur) */
   --tab-on:    #FFFFFF;                 /* the selected tab on the cover's segmented control */
+  --green:     #34C759;                 /* system green — used for exactly one thing: the friends' scale at "Best friend" */
   --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .12); /* focused card lift — a hint of depth, not a pop */
 
   /* Type · system font (SF on Apple devices), tvOS scale at 1080p */
@@ -82,6 +83,7 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
     --tint:      #0A84FF;
     --material:  rgba(30, 30, 32, .72);
     --tab-on:    rgba(120, 120, 128, .36);
+    --green:     #30D158;
     --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
   }
 }
@@ -97,6 +99,7 @@ html { font-size: min(1vw, 1.7778vh); }   /* the screen unit: 19.2 px at 1080p, 
   --tint:      #0A84FF;
   --material:  rgba(30, 30, 32, .72);
   --tab-on:    rgba(120, 120, 128, .36);
+  --green:     #30D158;
   --shadow:    0 .7rem 1.6rem -.7rem rgba(0, 0, 0, .35);
 }
 
@@ -193,16 +196,25 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .cmp .set { color: var(--label); }
 .cmp > span { display: block; }
 
-/* The friends' scale: one stepped slider per slide, top-right on the eyebrow's line — "How much of a friend are you?"
-   A label and a track of five dots (label-3; label colour once reached) with a knob (label colour) that snaps to a dot; every
-   moving figure (.n) follows. --lvl is 0–4 (five stops), set by deck.js. No tint. The dots' padding puts their centres under the knob's. */
-.scale { display: inline-flex; align-items: center; gap: .6em; margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; padding: .4em .5em .4em .8em; border-radius: var(--r-pill); background: var(--fill); color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; }
-.scale .lbl { min-width: 4.6em; text-align: right; }   /* the pill is right-anchored, so a longer label grows it leftwards and the track stays put */
-.scale .track { position: relative; display: flex; justify-content: space-between; align-items: center; width: 5.6em; height: 1.35em; padding: 0 .425em; }
-.scale .track i { width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease); }
+/* The friends' scale: one stepped slider per slide, top-right, as wide as the text column — "How much of a friend are you?"
+   A label, then a track: a thin line with five dots and a knob that snaps to them; the line and dots up to the knob fill in label
+   colour; every moving figure (.n) follows. --lvl is 0–4 (five stops), set by deck.js. At the last stop (.top, "Best friend") the whole
+   pill turns green — the deck's one joke and its one meaningful colour. The track's padding puts the dots' centres under the knob's. */
+.scale { display: flex; align-items: center; gap: .8em; width: calc(100vw - var(--text-x) - var(--safe-x)); margin-left: auto; flex-shrink: 0; font-size: var(--fs-caption); font-weight: 500; line-height: 1; padding: .4em .5em .4em 1em; border-radius: var(--r-pill); background: var(--fill); color: var(--label); white-space: nowrap; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.scale .lbl { min-width: 4.6em; }
+.scale .track { position: relative; flex: 1; display: flex; justify-content: space-between; align-items: center; height: 1.35em; padding: 0 .425em; }
+.scale .track::before, .scale .track::after { content: ""; position: absolute; top: 50%; left: .675em; height: .18em; margin-top: -.09em; border-radius: var(--r-pill); }
+.scale .track::before { right: .675em; background: var(--label-3); }
+.scale .track::after { width: calc(var(--lvl, 0) / 4 * (100% - 1.35em)); background: var(--label); transition: width var(--dur-fast) var(--ease); }
+.scale .track i { position: relative; z-index: 1; width: .5em; height: .5em; border-radius: 50%; background: var(--label-3); transition: background var(--dur-fast) var(--ease); }
 .scale .track i.on { background: var(--label); }
-.scale .track b { position: absolute; top: 0; left: calc(var(--lvl, 0) / 4 * (100% - 1.35em)); width: 1.35em; height: 1.35em; border-radius: 50%; background: var(--label); box-shadow: 0 0 0 .15em var(--bg); transition: left var(--dur-fast) var(--ease); }
+.scale .track b { position: absolute; z-index: 2; top: 0; left: calc(var(--lvl, 0) / 4 * (100% - 1.35em)); width: 1.35em; height: 1.35em; border-radius: 50%; background: var(--label); box-shadow: 0 0 0 .15em var(--bg); transition: left var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease); }
+.scale.top { background: var(--green); color: #FFFFFF; }
+.scale.top .track::before { background: rgba(255, 255, 255, .4); }
+.scale.top .track::after, .scale.top .track i, .scale.top .track b { background: #FFFFFF; }
+.scale.top .track b { box-shadow: 0 0 0 .15em var(--green); }
 .brand .scale { align-self: center; }
+.head .scale { margin-bottom: var(--gap-1); }
 html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 .card .p s, .row .p s { color: var(--label-2); font-weight: 400; margin-left: .5em; }
 
@@ -250,7 +262,7 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
 
 /* ── Motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .slide, .card, .scale .track b, .scale .track i { transition: none; }
+  .slide, .card, .scale, .scale .track b, .scale .track i, .scale .track::after { transition: none; }
   .slide { transform: none; }
   .card:hover, .card:focus-visible { transform: none; }
 }
@@ -264,7 +276,8 @@ html:not([data-level]) .fr, html[data-level="0"] .fr { display: none; }
   .body { position: relative; inset: auto; display: block; padding: var(--safe-y) var(--safe-x) 120px; }
   .photo { height: 52vh; }
   .head { margin-top: var(--gap-4); }
-  .cap { flex-wrap: wrap; row-gap: var(--gap-1); }   /* the friends' scale drops under the eyebrow when the row is too narrow */
+  .cap { flex-wrap: wrap; row-gap: var(--gap-1); }   /* on the list the friends' scale drops under the eyebrow */
+  .scale { width: 100%; }
     .buy { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; padding: 14px var(--safe-x) 28px; background: var(--bg); border-top: 1px solid var(--separator); justify-content: space-between; flex-wrap: nowrap; }
   .cmp { text-align: right; font-size: var(--fs-caption); }
   .dots { display: none; }
@@ -388,7 +401,7 @@ function product(p, i) {
     <div class="body">
       <div class="photo ${shapeOf(p)}" data-n="${shown(p)}" data-photo>${photoGrid(p)}</div>
       <div class="head">
-        <div class="cap"><span>Lot ${i + 1} of ${P.length}</span>${p.category ? `<span>·</span><span>${esc(p.category)}</span>` : ''}${scale}</div>
+        ${scale}
         <h1 class="title ${p.title.length > 34 ? 'long' : ''}">${esc(p.title)}</h1>
         ${p.subtitle ? `<p class="sub">${esc(p.subtitle)}</p>` : ''}
       </div>
@@ -432,6 +445,7 @@ function setLevel(l) {
   document.documentElement.dataset.level = level;
   document.querySelectorAll('[data-scale]').forEach(s => {
     s.style.setProperty('--lvl', level);
+    s.classList.toggle('top', level === TOP);
     s.setAttribute('aria-valuenow', level);
     s.setAttribute('aria-valuetext', LEVELS[level]);
     s.querySelector('.lbl').textContent = LEVELS[level];
