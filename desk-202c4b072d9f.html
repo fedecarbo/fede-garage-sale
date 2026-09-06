@@ -277,6 +277,8 @@ a { color: var(--tint); }
 /* A step: a numbered field with the text to copy. */
 .step { background: var(--container); border-radius: var(--r-lg); padding: 12px 14px 14px; }
 .step + .step { margin-top: 10px; }
+/* The break between the fields every listing has and the ones this category adds. */
+.then { margin: 18px 0 8px; padding-left: 2px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--label-2); }
 .step > header { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
 .step .n { flex: none; width: 21px; height: 21px; border-radius: 50%; background: var(--tint); color: var(--on-tint); font-size: 12px; font-weight: 700; line-height: 21px; text-align: center; font-variant-numeric: tabular-nums; }
 .step .k { font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
@@ -290,6 +292,7 @@ a { color: var(--tint); }
 .val { font: 14px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; background: var(--fill); border-radius: var(--r-md); padding: 10px 12px; }
 .val.one { white-space: pre-wrap; }
 .val.big { font-size: 15px; font-weight: 600; font-family: var(--font); }
+.val.empty { font-family: var(--font); color: var(--label-2); }   /* a category not sent back yet */
 .val.scroll { max-height: 320px; overflow: auto; -webkit-overflow-scrolling: touch; }
 .val.scroll.over { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); }
 .count { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--label-2); margin-top: 6px; }
@@ -436,47 +439,84 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const today = () => new Date().toISOString().slice(0, 10);
 const WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
 
-// ── The marketplaces. `full` is the name that goes into sale.listed, so the update block Fede pastes
-// back to Claude matches what build.mjs and tally.mjs expect. `limit` is the title length each one allows.
-const PLATFORMS = [
-  { id: 'ebay', name: 'eBay', full: 'eBay UK', limit: 80, hard: true },
-  { id: 'fb', name: 'Facebook', full: 'Facebook Marketplace', limit: 100 },
-  { id: 'gum', name: 'Gumtree', full: 'Gumtree', limit: 70 },
-  { id: 'vin', name: 'Vinted', full: 'Vinted', limit: 100 },
-];
-// Each marketplace's own condition wording, so the dropdown can just be picked.
-const COND = {
-  ebay: { 'New': 'New', 'Like new': 'Used — like new', 'Good': 'Used — good', 'Fair': 'Used — fair' },
-  fb: { 'New': 'New', 'Like new': 'Used – like new', 'Good': 'Used – good', 'Fair': 'Used – fair' },
-  gum: { 'New': 'New', 'Like new': 'Used', 'Good': 'Used', 'Fair': 'Used' },
-  vin: { 'New': 'New without tags', 'Like new': 'Very good', 'Good': 'Good', 'Fair': 'Satisfactory' },
+// ─────────────────────────────────────────────────────────────────────────────
+// The marketplaces — the only place a marketplace's own wording lives.
+//
+// Everything below is meant to be the words the real form uses, verbatim: the title
+// limit, the condition dropdown, the name of every field and the order it is asked in.
+// If a form ever says something different, it is wrong here and nowhere else.
+//
+// `full` is the name that goes into sale.listed, so the update block Fede pastes back to
+// Claude matches what build.mjs and tally.mjs expect — leave those two strings alone.
+//
+// `fields` is what the form asks for on every listing, in the order it asks. A category
+// can then add more of its own: see CATEGORY_FIELDS.
+// ─────────────────────────────────────────────────────────────────────────────
+const MARKET = {
+  fb: {
+    name: 'Facebook', full: 'Facebook Marketplace', limit: 100,
+    condition: { 'New': 'New', 'Like new': 'Used – like new', 'Good': 'Used – good', 'Fair': 'Used – fair' },
+    fields: ['title', 'price', 'category', 'model', 'condition', 'description', 'tags', 'loc'],
+  },
+  gum: {
+    name: 'Gumtree', full: 'Gumtree', limit: 70,
+    condition: { 'New': 'New', 'Like new': 'Used', 'Good': 'Used', 'Fair': 'Used' },
+    fields: ['category', 'model', 'title', 'description', 'price', 'condition', 'loc'],
+  },
 };
-// A suggested category, matched on the lot's own words first, then its category. eBay and Facebook
-// both propose one from the title as you type — this is a starting point, not gospel.
-const CATS = [
-  [/soundbar|sonos|speaker|atmos/i, 'Sound & Vision › Home Audio & HiFi Separates › Home Cinema & Soundbars', 'Electronics › Audio'],
-  [/\btv\b|television|qled|oled|qn\d/i, 'Sound & Vision › Televisions', 'Electronics › TVs & Video'],
-  [/monitor|coloredge|display\b/i, 'Computers/Tablets & Networking › Monitors, Projectors & Accs › Monitors', 'Electronics › Computers'],
-  [/\bdesk\b|cockpit/i, 'Business, Office & Industrial › Office Equipment & Supplies › Office Furniture › Desks', 'Home & Garden › Furniture › Desks'],
-  [/aeron|office chair/i, 'Business, Office & Industrial › Office Equipment & Supplies › Office Furniture › Chairs', 'Home & Garden › Furniture › Chairs'],
-  [/sofa|footstool|armchair/i, 'Home, Furniture & DIY › Furniture › Sofas, Armchairs & Suites', 'Home & Garden › Furniture › Sofas'],
-  [/dining chair|\bchair\b/i, 'Home, Furniture & DIY › Furniture › Chairs', 'Home & Garden › Furniture › Chairs'],
-  [/\btable\b/i, 'Home, Furniture & DIY › Furniture › Tables', 'Home & Garden › Furniture › Tables'],
-  [/\brug\b|carpet/i, 'Home, Furniture & DIY › Rugs & Carpets', 'Home & Garden › Home Décor'],
-  [/roomba|vacuum/i, 'Home, Furniture & DIY › Appliances › Vacuum Cleaners', 'Home & Garden › Household'],
-  [/thermomix|air fryer|blender|kettle|toaster/i, 'Home, Furniture & DIY › Appliances › Small Kitchen Appliances', 'Home & Garden › Kitchen & Dining'],
-  [/drill|dewalt|\bsaw\b/i, 'Home, Furniture & DIY › Tools & Workshop Equipment › Power Tools › Drills', 'Tools & Home Improvement'],
-  [/bench|curl bar|dumbbell|weight|technogym/i, 'Sporting Goods › Fitness, Running & Yoga › Strength Training', 'Sports & Outdoors › Exercise Equipment'],
-  [/laundry|basket|\bbin\b|storage/i, 'Home, Furniture & DIY › Household Storage & Organisation', 'Home & Garden › Household'],
-  [/cushion|throw|blanket/i, 'Home, Furniture & DIY › Home Décor › Cushions', 'Home & Garden › Home Décor'],
-  [/bowl|chopping|board|ironing/i, 'Home, Furniture & DIY › Cookware, Dining & Bar', 'Home & Garden › Kitchen & Dining'],
-  [/tv stand|sideboard|cabinet/i, 'Home, Furniture & DIY › Furniture › TV & Entertainment Stands', 'Home & Garden › Furniture'],
-];
-const CAT_FALLBACK = { ebay: 'Home, Furniture & DIY', fb: 'Home & Garden' };
+const PLATFORMS = Object.entries(MARKET).map(([id, m]) => ({ id, ...m }));
+
+// What a category then asks for, on top of the fields above. Facebook changes the form on
+// the category you pick — a sofa is asked its material, a television is not — so the extra
+// fields hang off the exact category path, not off the lot. Keyed by that path, verbatim.
+// A category with no row here adds nothing, which is also what an empty table means.
+const CATEGORY_FIELDS = {
+  fb: {},
+  gum: {},
+};
+
+// ── Where each lot goes ──────────────────────────────────
+// One row per lot, keyed by slug. `category` is the exact path to pick in that marketplace's
+// own picker, copied from the picker — a lot with no category says so on screen rather than
+// showing an invented one. The rest are the answers to that category's follow-up fields, and
+// come from the lot's own catalogue entry: brand, model, colour, material, size.
+const LISTING = {
+  'thermomix-tm7':                     { brand: 'Vorwerk', model: 'TM7' },
+  'thermomix-tm6':                     { brand: 'Vorwerk', model: 'TM6' },
+  'technogym-bench':                   { brand: 'Technogym' },
+  'vesper-coffee-table':               { brand: 'Williston Forge', material: 'Solid pine' },
+  'armstrong-tv-stand':                { brand: 'Williston Forge', material: 'Reclaimed wood and steel' },
+  'dusk-montreal-throw-cushion':       { brand: 'DUSK', colour: 'Natural', material: 'Chunky knit' },
+  'made-harlow-sofa':                  { brand: 'MADE', colour: 'Grey', material: 'Textured weave' },
+  'made-harlow-footstool':             { brand: 'MADE', colour: 'Grey', material: 'Textured weave' },
+  'samsung-qn88c-55':                  { brand: 'Samsung', model: 'QN88C', size: '55"' },
+  'herman-miller-aeron':               { brand: 'Herman Miller', model: 'Aeron Remastered', colour: 'Graphite', size: 'B' },
+  'secretlab-magnus-metal-desk':       { brand: 'Secretlab', model: 'MAGNUS', colour: 'Signature Black', material: 'Steel' },
+  'sonos-arc':                         { brand: 'Sonos', model: 'Arc', colour: 'Black' },
+  'eizo-coloredge-cs2740':             { brand: 'EIZO', model: 'ColorEdge CS2740', size: '27"' },
+  'ellipse-ceramic-dining-table':      { brand: 'Artico Interiors', colour: 'Anthracite', material: 'Ceramic and steel' },
+  'alienware-aw2721d':                 { brand: 'Alienware', model: 'AW2721D', colour: 'Lunar Light', size: '27"' },
+  'house-doctor-must-chairs':          { brand: 'House Doctor', colour: 'Black', material: 'Bentwood, faux leather and steel' },
+  'shaheer-wool-rug':                  { brand: 'FableRoom', colour: 'Grey and cream', material: '80% wool', size: '140 × 200 cm' },
+  'joseph-joseph-tota-laundry-basket': { brand: 'Joseph Joseph', colour: 'Ecru' },
+  'joseph-joseph-folio-steel-boards':  { brand: 'Joseph Joseph', material: 'Stainless steel' },
+  'simplehuman-touch-bar-bin':         { brand: 'simplehuman', model: 'CW2015', material: 'Stainless steel' },
+  'joseph-joseph-pocket-ironing-board':{ brand: 'Joseph Joseph', colour: 'Grey and yellow' },
+  'balolo-setup-cockpit':              { brand: 'balolo', colour: 'All Black', material: 'Oak' },
+  'tnp-ez-curl-bar-set':               { brand: 'TNP Accessories', material: 'Chrome steel' },
+  'dewalt-dcd776-combi-drill':         { brand: 'DeWalt', model: 'DCD776' },
+  'irobot-roomba-966':                 { brand: 'iRobot', model: 'Roomba 966' },
+  'metrovac-datavac-ed500':            { brand: 'MetroVac', model: 'DataVac ED-500' },
+  'worx-wx030-cubevac':                { brand: 'WORX', model: 'WX030' },
+  'wildone-mixing-bowls':              { brand: 'Wildone', material: 'Stainless steel' },
+};
+// A row may hold `fb` and `gum` sub-objects to say something different on one marketplace;
+// anything not overridden there falls back to the row itself.
+const attrs = (lot, p) => ({ ...LISTING[lot.slug], ...(LISTING[lot.slug] || {})[p.id] });
 // The shots that make a listing look honest. listing.mjs prints the same list.
 const SHOTS = ['The whole thing, straight on', 'Each side, and the back', 'Label, model or serial plate', 'Everything that is included, laid out', 'It where it stands, for scale'];
 
-let C, LOTS, BUILT, S = {}, cur = 0, plat = 'ebay', view = null;
+let C, LOTS, BUILT, S = {}, cur = 0, plat = 'fb', view = null;
 
 // ── Unlock ───────────────────────────────────────────────
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -548,24 +588,16 @@ const isDone = lot => lot.status !== 'ready' || !!st(lot).sold || !!st(lot).res;
 
 // ── The text a marketplace form asks for ─────────────────
 const P = id => PLATFORMS.find(p => p.id === id);
-// eBay allows 80 characters: the title, then as many whole " · " segments of the subtitle as fit.
+// The title, then as many whole " · " segments of the subtitle as fit the marketplace's limit.
 function titleFor(lot, p) {
   let t = lot.title;
   for (const s of (lot.subtitle || '').split(' · ')) if (s && (t + ' · ' + s).length <= p.limit) t += ' · ' + s;
   return t;
 }
-function priceFor(lot) {
-  if (lot.asking === 0) return 'Free';
-  const each = money(lot.asking) + (lot.unit ? ` ${lot.unit}` : '');
-  return typeof lot.setPrice === 'number' ? `${each} · ${money(lot.setPrice)} for ${lot.quantity ? `all ${WORDS[lot.quantity] || lot.quantity}` : 'the set'}` : each;
-}
-function catFor(lot, p) {
-  const hay = `${lot.title} ${lot.subtitle || ''} ${lot.category || ''}`;
-  const hit = CATS.find(([re]) => re.test(hay));
-  if (p.id === 'ebay') return hit ? hit[1] : CAT_FALLBACK.ebay;
-  if (p.id === 'fb') return hit ? hit[2] : CAT_FALLBACK.fb;
-  return `Closest match to “${lot.category || lot.section || 'Home'}” — ${p.name} suggests one from your title`;
-}
+// The exact path to pick in this marketplace's own picker, from LISTING. Nothing is inferred from
+// the lot's words any more: a lot with no category set says so, rather than sending Fede to the
+// wrong one and leaving him to work out the real one at the form.
+const catFor = (lot, p) => attrs(lot, p).category || '';
 // A lot that can also be sold together with another one (the table with its chairs): buyer-facing.
 const bundleOf = lot => lot.bundle && typeof lot.bundle.price === 'number' && lot.bundle.with ? lot.bundle : null;
 
@@ -594,13 +626,66 @@ function bodyFor(lot) {
 
 // The area is public, the full postcode is not: config.collection_area, plus the outward half of the postcode.
 const locFor = () => `${C.collection_area || 'Collection in person'}${C.collection_postcode ? ` (${C.collection_postcode.split(' ')[0]})` : ''}`;
-const allFor = (lot, p) => [titleFor(lot, p), priceFor(lot), '', bodyFor(lot)].join('\n');
-const textFor = (lot, p, what) => ({
-  title: titleFor(lot, p), cat: catFor(lot, p), cond: COND[p.id][lot.condition] || lot.condition || 'Used',
-  price: lot.asking === 0 ? '0' : String(lot.asking), desc: bodyFor(lot), loc: locFor(),
-  tags: tagsFor(lot).join(', '), postcode: C.collection_postcode || '', all: allFor(lot, p),
-  sku: lot.listingSku || '',
-}[what] || '');
+// ── The fields, and what goes in each ────────────────────
+// One entry per field a marketplace can ask for. `value` is what Copy puts on the clipboard;
+// `html` is how it reads on screen where a plain line will not do. Which of these a lot actually
+// shows, and in what order, is MARKET[…].fields plus whatever its category adds — never this list.
+const FIELD = {
+  title: {
+    label: 'Title', hint: p => `${p.limit} characters`,
+    value: (lot, p) => titleFor(lot, p),
+    html: (lot, p, t) => `<div class="val one">${esc(t)}</div><div class="count ${t.length > p.limit ? 'over' : ''}">${t.length} / ${p.limit}${t.length > p.limit ? ' — too long, trim it' : ''}</div>`,
+  },
+  price: {
+    label: 'Price', hint: () => 'ask this',
+    value: lot => lot.asking === 0 ? '0' : String(lot.asking),
+    html: lot => `<div class="money"><span class="big">${lot.asking === 0 ? 'Free' : money(lot.asking)}${lot.unit ? ` <span class="sm">${esc(lot.unit)}</span>` : ''}</span>${typeof lot.setPrice === 'number' ? `<span class="sm">or ${money(lot.setPrice)} for ${lot.quantity ? `all ${WORDS[lot.quantity] || lot.quantity}` : 'the set'}</span>` : ''}${bundleOf(lot) ? `<span class="sm">or ${money(lot.bundle.price)} with ${esc(lot.bundle.with)}</span>` : ''}${typeof lot.original === 'number' ? `<span class="sm">${money(lot.original)} new</span>` : ''}</div>`,
+  },
+  category: {
+    label: 'Category', hint: () => 'pick exactly this', always: true,
+    value: (lot, p) => catFor(lot, p),
+    html: (lot, p, t) => t ? `<div class="val one">${esc(t)}</div>` : '<div class="val one empty">Not set yet — send Claude the path this picker shows and it lands here</div>',
+  },
+  condition: {
+    label: 'Condition', hint: p => `as ${p.name} words it`, nocopy: true,
+    value: (lot, p) => p.condition[lot.condition] || lot.condition || 'Used',
+    html: (lot, p, t) => `<div class="val big">${esc(t)}</div>`,
+  },
+  description: {
+    label: 'Description', hint: () => 'paste the lot',
+    value: lot => bodyFor(lot),
+    html: (lot, p, t) => `<div class="val scroll">${esc(t)}</div>`,
+  },
+  tags: {
+    label: 'Product tags', hint: () => `up to ${TAG_LIMIT} — Facebook searches these`,
+    value: lot => tagsFor(lot).join(', '),
+    html: lot => {
+      const g = tagsFor(lot);
+      return `<div class="taglist">${g.map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div><div class="count">${g.length} / ${TAG_LIMIT} — Copy pastes them comma-separated</div>`;
+    },
+  },
+  loc:      { label: 'Location', hint: () => 'public — the area only', value: () => locFor() },
+  brand:    { label: 'Brand', value: (lot, p) => attrs(lot, p).brand || '' },
+  model:    { label: 'Model', hint: () => 'the number on the plate', value: (lot, p) => attrs(lot, p).model || lot.listingSku || '' },
+  colour:   { label: 'Colour', value: (lot, p) => attrs(lot, p).colour || '' },
+  material: { label: 'Material', value: (lot, p) => attrs(lot, p).material || '' },
+  size:     { label: 'Size', value: (lot, p) => attrs(lot, p).size || '' },
+};
+
+// What this lot shows on this marketplace: the form's own fields first, then whatever the category
+// it lands in adds on top. A field with nothing to say is left out — except the category, which says
+// so instead, because that is the one Fede opened the desk to read.
+const shown = (lot, p, keys) => keys.filter(k => FIELD[k] && (FIELD[k].always || FIELD[k].value(lot, p)));
+const baseFor = (lot, p) => shown(lot, p, p.fields);
+const extraFor = (lot, p) => shown(lot, p, ((CATEGORY_FIELDS[p.id] || {})[catFor(lot, p)] || []).filter(k => !p.fields.includes(k)));
+const keysFor = (lot, p) => [...baseFor(lot, p), ...extraFor(lot, p)];
+
+// The whole form as text, in the order it is asked, so a paste can be worked straight down the page.
+const allFor = (lot, p) => keysFor(lot, p).map(k => {
+  const v = FIELD[k].value(lot, p);
+  return !v ? '' : v.includes('\n') ? `${FIELD[k].label}:\n${v}` : `${FIELD[k].label}: ${v}`;
+}).filter(Boolean).join('\n\n');
+const textFor = (lot, p, what) => what === 'all' ? allFor(lot, p) : FIELD[what] ? FIELD[what].value(lot, p) : '';
 
 // ── Copy, with a fallback for file:// where the clipboard API is not allowed ──
 function copyText(text) {
@@ -707,6 +792,20 @@ function rowFor(lot) {
   </button>`;
 }
 
+// The form as this marketplace asks it: its own fields in its own order, then the ones the category
+// adds on top — the follow-up questions the picker springs on you once the category is chosen.
+function formFor(lot, p) {
+  const N = (n => () => ++n)(0);   // the steps number themselves, so a missing field leaves no gap
+  const one = k => {
+    const f = FIELD[k], text = f.value(lot, p);
+    const body = f.html ? f.html(lot, p, text) : `<div class="val one">${esc(text)}</div>`;
+    return step(N(), k, f.label, f.hint ? f.hint(p) : '', body, { nocopy: f.nocopy || !text });
+  };
+  const extra = extraFor(lot, p);
+  return baseFor(lot, p).map(one).join('')
+    + (extra.length ? `<p class="then">Then this category asks for</p>${extra.map(one).join('')}` : '');
+}
+
 function step(n, key, name, hint, value, opts = {}) {
   return `<section class="step">
     <header><span class="n">${n}</span><span class="k">${esc(name)}${hint ? ` <span class="hint">${esc(hint)}</span>` : ''}</span><span class="sp"></span>
@@ -718,12 +817,9 @@ function step(n, key, name, hint, value, opts = {}) {
 function lotScreen(i) {
   const lot = LOTS[i], p = P(plat), s = st(lot);
   const stock = lot.photos.length && lot.photos.every(x => x.stock);
-  const title = titleFor(lot, p), over = title.length > p.limit;
   const chips = [...new Set([lot.condition, lot.section, lot.category].filter(Boolean))];   // section and category are often the same word
   const shotState = s.shots || {};
   const shots = [...SHOTS, ...(lot.flaws ? ['Close-up of the flaw'] : [])];
-  const tags = tagsFor(lot);
-  const N = (n => () => ++n)(0);   // steps renumber themselves: the Model row only shows when there is one
   const nextTodo = LOTS.findIndex((l, j) => j > i && l.status === 'ready' && !postedOn(l).length && !isDone(l));
   return `
     <header class="top">
@@ -750,17 +846,9 @@ function lotScreen(i) {
 
         <div class="main">
           <div class="plats" role="tablist">${PLATFORMS.map(x => `<button class="plat ${x.id === plat ? 'on' : ''} ${s[x.id]?.on ? 'did' : ''}" data-plat="${x.id}" role="tab" aria-selected="${x.id === plat}">${esc(x.name)}<i></i></button>`).join('')}</div>
-          ${plat === 'vin' ? '<div class="card warn"><h3>Before you use Vinted</h3><p class="note">Vinted posts items — it is not a collection marketplace. The lines below still say collection only, so use Vinted for the small, light things and think about postage first.</p></div>' : ''}
           ${stock ? '<div class="card warn"><h3>Photos first</h3><p class="note">This lot only has a stock photo. Marketplaces bury listings with no real photos, and buyers ask. Shoot it before you post.</p></div>' : ''}
 
-          ${step(N(), 'title', 'Title', `${p.name} · ${p.limit} characters`, `<div class="val one">${esc(title)}</div><div class="count ${over ? 'over' : ''}">${title.length} / ${p.limit}${over ? ' — too long, trim it' : ''}</div>`)}
-          ${step(N(), 'cat', 'Category', 'suggested', `<div class="val one">${esc(catFor(lot, p))}</div>`)}
-          ${lot.listingSku ? step(N(), 'sku', 'Model', 'eBay and Gumtree ask for this', `<div class="val one">${esc(lot.listingSku)}</div>`) : ''}
-          ${step(N(), 'cond', 'Condition', `as ${p.name} words it`, `<div class="val big">${esc(COND[p.id][lot.condition] || lot.condition || 'Used')}</div>`, { nocopy: true })}
-          ${step(N(), 'price', 'Price', 'ask this', `<div class="money"><span class="big">${lot.asking === 0 ? 'Free' : money(lot.asking)}${lot.unit ? ` <span class="sm">${esc(lot.unit)}</span>` : ''}</span>${typeof lot.setPrice === 'number' ? `<span class="sm">or ${money(lot.setPrice)} for ${lot.quantity ? `all ${WORDS[lot.quantity] || lot.quantity}` : 'the set'}</span>` : ''}${bundleOf(lot) ? `<span class="sm">or ${money(lot.bundle.price)} with ${esc(lot.bundle.with)}</span>` : ''}${typeof lot.original === 'number' ? `<span class="sm">${money(lot.original)} new</span>` : ''}</div>`)}
-          ${step(N(), 'desc', 'Description', 'paste the lot', `<div class="val scroll">${esc(bodyFor(lot))}</div>`)}
-          ${step(N(), 'tags', p.id === 'fb' ? 'Product tags' : 'Search keywords', p.id === 'fb' ? `up to ${TAG_LIMIT} — Facebook searches these` : `no tag field here — work these into the title and description`, `<div class="taglist">${tags.map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div><div class="count">${tags.length}${p.id === 'fb' ? ` / ${TAG_LIMIT}` : ''} — Copy pastes them comma-separated</div>`)}
-          ${step(N(), 'loc', 'Location', 'public — the area only', `<div class="val one">${esc(locFor())}</div>`)}
+          ${formFor(lot, p)}
 
           <section class="card priv">
             <h3>Yours only — never paste this</h3>
