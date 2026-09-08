@@ -514,6 +514,7 @@ const SHIP = {
         { t: 'Sonos One', es: 'Parlantes Sonos One', q: 2, s: '1.85 kg each · manufacturer figures', es_s: '1.85 kg c/u · medidas del fabricante', d: '16.1 × 12 × 12 cm each', des: '16.1 × 12 × 12 cm c/u', kg: 3.7, m3: 0.005 },
         { t: 'Balolo Setup Cockpit', es: 'Soporte de monitor Balolo', s: 'monitor stand with the laptop dock', es_s: 'soporte de monitor con base para laptop', d: '114 × 23 × 12 cm', kg: 3.8, m3: 0.031 },
         { t: 'Herman Miller Aeron', es: 'Silla Herman Miller Aeron', s: 'size B · 93 cm at its lowest setting', es_s: 'talla B · 93 cm en su posición más baja', d: '72 × 70 × 93 cm', kg: 18.6, m3: 0.469 },
+        { t: 'Bicycle', es: 'Bicicleta', s: 'Boardman, to confirm · insured with Laka', es_s: 'Boardman, por confirmar · asegurada con Laka', d: 'to measure', des: 'por medir', measure: true },
       ],
     },
     {
@@ -523,8 +524,8 @@ const SHIP = {
       ],
     },
   ],
-  prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames', 'Bike?'],
-  es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros', '¿Bicicleta?'],
+  prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames'],
+  es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros'],
 };
 const going = SHIP.groups[0].items;
 const toMeasure = going.filter(i => i.measure);
