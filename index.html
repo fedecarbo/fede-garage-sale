@@ -525,6 +525,10 @@ const SHIP = {
       ],
     },
   ],
+  // Quote DE-26-022-2 (Allianz Moving CRC via ASEAL, 3 September 2026): 2.5 m³ of
+  // household goods door to door, consolidated, US$5,495 — "tarifa final sujeta a
+  // volumen", so the cube below is what the price stands or falls on.
+  quote: { ref: 'DE-26-022-2', m3: 2.5, usd: 5495, valid: '3 October 2026' },
   prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames'],
   es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros'],
 };
@@ -562,8 +566,8 @@ function shipping() {
       </div>
     </div>
     <div class="foot">
-      <span class="sum">${cube(sumM3)} · ${kilos(sumKg)}<span>packed${toMeasure.length ? ` · ${toMeasure.length} still to measure` : ''}</span>
-        <small class="note">Sizes are as the lot travels — the desk and the table apart. Two 120 × 100 cm pallets stacked to 160 cm hold about 3.8 m³ gross, nearer 2.7 m³ packed. The desk top at 150 cm and a boxed bike at 140 cm are longer than a pallet edge.</small></span>
+      <span class="sum">${cube(sumM3)} of ${SHIP.quote.m3} m³ · ${kilos(sumKg)}<span>packed${toMeasure.length ? ` · ${toMeasure.length} still to measure` : ''}</span>
+        <small class="note">Sizes are as the lot travels — the desk and the table apart. Quote ${SHIP.quote.ref} covers ${SHIP.quote.m3} m³ door to door, consolidated, at US$${SHIP.quote.usd.toLocaleString('en-GB')}; the rate is subject to final volume, and oversized items are excluded. Nothing under &quot;not counted yet&quot; is in the figure.</small></span>
       <span class="acts"><button class="pill" data-copy>Copy for Dinia</button><button class="pill" data-csv>CSV</button></span>
     </div>
   </section>`;

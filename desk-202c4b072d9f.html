@@ -825,6 +825,10 @@ const SHIP = {
     { t: 'Boardman HYB 8.8', es: 'Bicicleta Boardman HYB 8.8', s: 'hybrid · manufacturer weight, built · frame size to confirm', es_s: 'híbrida · peso del fabricante, armada · talla por confirmar', d: 'to measure — boxed or as it stands', des: 'por medir — encajada o armada', kg: 10.4, measure: true },
   ],
   maybe: [],
+  // Quote DE-26-022-2 (Allianz Moving CRC via ASEAL, 3 September 2026): 2.5 m³ of
+  // household goods door to door, consolidated, US$5,495 — "tarifa final sujeta a
+  // volumen", so the cube below is what the price stands or falls on.
+  quote: { ref: 'DE-26-022-2', m3: 2.5, usd: 5495, valid: '3 October 2026' },
   prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames'],
   es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros'],
 };
@@ -863,12 +867,12 @@ function shipScreen() {
     <div class="wrap">
       <div class="hero">
         <h1>Shipping</h1>
-        <p>${shipCount} items · ${cube(shipM3)} · ${kilos(shipKg)}${shipLeft.length ? ` · ${shipLeft.length} still to measure` : ''}</p>
+        <p>${shipCount} items · ${cube(shipM3)} of ${SHIP.quote.m3} m³ quoted · ${kilos(shipKg)}${shipLeft.length ? ` · ${shipLeft.length} still to measure` : ''}</p>
         <div class="acts">
           <button class="act primary" data-ship-copy>${IC.copy} Copy for Dinia</button>
           <button class="act" data-ship-csv>${IC.copy} CSV</button>
         </div>
-        <div class="card" style="margin-top:14px"><p class="note">Sizes are the lot as it travels — the desk and the table in pieces, the bench with its weights in, the boxes closed. Two 120 × 100 cm pallets stacked to 160 cm hold about 3.8 m³ gross, nearer 2.7 m³ packed. The desk top at 150 cm and a boxed bike at 140 cm are longer than a pallet edge.</p></div>
+        <div class="card" style="margin-top:14px"><p class="note">Sizes are the lot as it travels — the desk and the table in pieces, the bench with its weights in, the boxes closed. Quote ${SHIP.quote.ref} covers ${SHIP.quote.m3} m³ door to door, consolidated, at US$${SHIP.quote.usd.toLocaleString('en-GB')} — the rate is subject to final volume, and oversized items are excluded. Nothing under &quot;not counted yet&quot; is in the figure.</p></div>
       </div>
       ${shipSection('Going', SHIP.going)}
       ${shipSection('Still to decide', SHIP.maybe)}
