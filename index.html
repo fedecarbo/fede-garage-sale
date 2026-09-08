@@ -340,6 +340,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .ship .foot { padding-top: var(--gap-3); align-items: baseline; }
 .ship .foot .sum { font-size: var(--fs-body); font-weight: 600; font-variant-numeric: tabular-nums; }
 .ship .foot .sum span { font-weight: 400; color: var(--label-2); margin-left: .5em; }
+.ship .foot .note { display: block; font-size: var(--fs-caption); font-weight: 400; color: var(--label-2); margin-top: .25em; }
+.acts { display: flex; gap: var(--gap-1); flex: none; }
+.acts .pill { background: var(--fill); backdrop-filter: none; -webkit-backdrop-filter: none; cursor: pointer; }
 
 @media (max-width: 820px), (orientation: portrait) {
   /* Phones: the name takes the first line, size and weight the second. */
@@ -482,61 +485,70 @@ function list() {
 }
 
 // ── Shipping list ─────────────────────────────────────────────────────────
-// The last slide: what is going to Costa Rica, not what is for sale. Sizes are
-// external and boxes are closed, because that is what a mover prices. `m3` is
-// the box the lot occupies on a pallet; `measure: true` marks one still to be
-// measured, and it is left out of the total rather than guessed at.
+// The last slide: what goes to Costa Rica, not what is for sale.
+//
+// Every size here is the lot AS IT TRAVELS, not as it stands in the flat — the
+// desk goes on the pallet in pieces, so it is measured in pieces. `m3` is the
+// space it takes on the pallet; `est` marks a figure to confirm when the lot is
+// actually apart, `measure` one not yet measured at all, which is left out of
+// the total rather than guessed at. `es` / `es_s` / `des` are the Spanish the
+// export sends to Dinia; anything that reads the same in both is left out.
 const SHIP = {
-  route: 'London SE17 → Viva Residences, San Rafael de Escazú',
-  who: 'For Dinia Vega · ASEAL',
+  from: 'London SE17 1GH',
+  to: 'Viva Residences, San Rafael de Escazú',
+  who: 'Federico Carbo · fede.carbo@gmail.com · +44 7951 477979',
   groups: [
     {
-      name: 'Going',
+      name: 'Going', es: 'VA',
       items: [
         { t: 'Thermomix TM6', d: '32.6 × 32.6 × 34.1 cm', kg: 7.95, m3: 0.036 },
-        { t: 'Technogym Bench', s: 'weights, bands and mat inside', d: '113 × 38 × 45.5 cm', kg: 99, m3: 0.195 },
-        { t: 'Secretlab MAGNUS desk', s: 'not the Pro · comes apart', d: '150 × 70 × 73.5 cm', kg: 42, m3: 0.772 },
-        { t: 'Vesper coffee table', s: 'pine trunk · packs full', d: '85 × 48 × 45 cm', m3: 0.184 },
-        { t: 'IKEA KUGGIS boxes', q: 2, s: 'white, with lids', d: '54 × 37 × 21 cm each', m3: 0.084 },
-        { t: 'Iris Ohyama TB-30 boxes', q: 5, s: 'transparent, 30 L each', d: 'to measure', measure: true },
-        { t: 'Black storage boxes', q: 3, d: 'to measure', measure: true },
-        { t: 'Joseph Joseph pocket ironing board', s: 'no iron', d: '34 × 15.5 × 45.5 cm folded', m3: 0.024 },
-        { t: 'simplehuman 30 L bin', d: '33.9 × 28.9 × 71 cm', kg: 5.85, m3: 0.070 },
+        { t: 'Technogym Bench', es: 'Banca Technogym', s: 'weights, bands and mat inside', es_s: 'con pesas, bandas y colchoneta dentro', d: '113 × 38 × 45.5 cm', kg: 99, m3: 0.195 },
+        { t: 'Secretlab MAGNUS desk', es: 'Escritorio Secretlab MAGNUS', s: 'travels apart · 73.5 cm tall assembled', es_s: 'viaja desarmado · 73.5 cm de alto armado', d: '150 × 70 cm top, frame apart', des: '150 × 70 cm el tablero, estructura aparte', kg: 42, m3: 0.10, est: true },
+        { t: 'Vesper coffee table', es: 'Mesa de centro Vesper', s: 'pine trunk · travels full', es_s: 'baúl de pino · viaja lleno', d: '85 × 48 × 45 cm', m3: 0.184 },
+        { t: 'IKEA KUGGIS boxes', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
+        { t: 'Iris Ohyama TB-30 boxes', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
+        { t: 'Black storage boxes', es: 'Cajas negras', q: 3, d: 'to measure', des: 'por medir', measure: true },
+        { t: 'Joseph Joseph pocket ironing board', es: 'Tabla de planchar plegable Joseph Joseph', s: 'no iron', es_s: 'sin plancha', d: '34 × 15.5 × 45.5 cm folded', des: '34 × 15.5 × 45.5 cm plegada', m3: 0.024 },
+        { t: 'simplehuman 30 L bin', es: 'Basurero simplehuman 30 L', d: '33.9 × 28.9 × 71 cm', kg: 5.85, m3: 0.070 },
       ],
     },
     {
-      name: 'Still to decide',
+      name: 'Still to decide', es: 'POR CONFIRMAR',
       note: 'Sizes ready — say the word and they move up.',
       items: [
-        { t: 'Joseph Joseph Tota 90 L laundry basket', s: 'reserved for Zudik', d: '56 × 39.5 × 71 cm' },
-        { t: 'Thermomix TM7', s: 'warranty to May 2027', d: '25.3 × 40.5 × 33.6 cm', kg: 8.6 },
-        { t: 'Sonos Arc', s: 'withdrawn from the sale', d: '114.2 × 11.6 × 8.7 cm', kg: 6.25 },
-        { t: 'EIZO ColorEdge CS2740', s: 'screen permits — ask Dinia first', d: '63.8 × 37.8 × 7.5 cm panel', kg: 6.7 },
-        { t: 'Alienware AW2721D', s: 'screen permits too', d: '60.8 × 25.2 × 44.3 cm', kg: 10.9 },
-        { t: 'EZ curl bar set', s: 'free with the bench · still listed', d: 'bar 120 cm', kg: 23.5 },
+        { t: 'Joseph Joseph Tota 90 L laundry basket', es: 'Cesto de ropa Joseph Joseph Tota 90 L', s: 'reserved for Zudik', es_s: 'reservado para Zudik', d: '56 × 39.5 × 71 cm' },
+        { t: 'Thermomix TM7', s: 'warranty to May 2027', es_s: 'garantía hasta mayo 2027', d: '25.3 × 40.5 × 33.6 cm', kg: 8.6 },
+        { t: 'Sonos Arc', s: 'withdrawn from the sale', es_s: 'retirado de la venta', d: '114.2 × 11.6 × 8.7 cm', kg: 6.25 },
+        { t: 'EIZO ColorEdge CS2740', s: 'screen permits — ask Dinia first', es_s: 'pantalla usada · consultar permisos', d: '63.8 × 37.8 × 7.5 cm panel', des: '63.8 × 37.8 × 7.5 cm el panel', kg: 6.7 },
+        { t: 'Alienware AW2721D', s: 'screen permits too', es_s: 'pantalla usada · consultar permisos', d: '60.8 × 25.2 × 44.3 cm', kg: 10.9 },
+        { t: 'EZ curl bar set', es: 'Barra Z con discos', s: 'free with the bench · still listed', es_s: 'aún en venta', d: 'bar 120 cm', des: 'barra 120 cm', kg: 23.5 },
       ],
     },
   ],
-  // Everything the sale never covered, because the sale only lists what is going.
   prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames', 'Bike?'],
+  es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros', '¿Bicicleta?'],
 };
+const going = SHIP.groups[0].items;
+const toMeasure = going.filter(i => i.measure);
+const anyEst = going.some(i => i.est);
+const sumM3 = going.reduce((s, i) => s + (i.m3 || 0), 0);
+const sumKg = going.reduce((s, i) => s + (i.kg || 0), 0);
+const count = going.reduce((s, i) => s + (i.q || 1), 0);
 const kilos = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' kg';
-const cube = n => n.toFixed(2) + ' m³';
+const cube = n => (anyEst ? '≈' : '') + n.toFixed(2) + ' m³';
+
 const shipRow = it => `<div class="srow${it.measure ? ' todo' : ''}">
         <span class="n">${esc(it.t)}${it.q ? `<span class="qty">× ${it.q}</span>` : ''}${it.s ? `<small>${esc(it.s)}</small>` : ''}</span>
         <span class="d">${esc(it.d || '—')}</span>
         <span class="w">${it.kg ? esc(kilos(it.kg)) : ''}</span>
       </div>`;
 function shipping() {
-  const going = SHIP.groups[0].items;
-  const n = going.reduce((s, i) => s + (i.q || 1), 0);
-  const left = going.filter(i => i.measure).length;
   const block = (g, i) => `
-      <p class="gname">${esc(g.name)}${i === 0 ? ` · ${n} items` : ''}</p>
+      <p class="gname">${esc(g.name)}${i === 0 ? ` · ${count} items` : ''}</p>
       ${g.note ? `<p class="gnote">${esc(g.note)}</p>` : ''}
       <div class="group">${g.items.map(shipRow).join('')}</div>`;
   return `<section class="slide list ship">
-    <div class="cap">${back}<span>${esc(SHIP.route)}</span></div>
+    <div class="cap">${back}<span>${esc(SHIP.from)} → ${esc(SHIP.to)}</span></div>
     <h1>Shipping</h1>
     <div class="groups two">
       <div class="scol">${block(SHIP.groups[0], 0)}</div>
@@ -546,11 +558,56 @@ function shipping() {
       </div>
     </div>
     <div class="foot">
-      <span class="sum">${cube(going.reduce((s, i) => s + (i.m3 || 0), 0))} · ${kilos(going.reduce((s, i) => s + (i.kg || 0), 0))}<span>measured${left ? ` · ${left} ${left === 1 ? 'lot' : 'lots'} still to measure` : ''}</span></span>
-      <span class="cap">${esc(SHIP.who)} · a 120 × 100 cm pallet stacked to 160 cm holds about 1.9 m³</span>
+      <span class="sum">${cube(sumM3)} · ${kilos(sumKg)}<span>packed${toMeasure.length ? ` · ${toMeasure.length} still to measure` : ''}</span>
+        <small class="note">Sizes are as the lot travels — the desk apart. A 120 × 100 cm pallet stacked to 160 cm holds about 1.9 m³.</small></span>
+      <span class="acts"><button class="pill" data-copy>Copy for Dinia</button><button class="pill" data-csv>CSV</button></span>
     </div>
   </section>`;
 }
+
+// ── Export ────────────────────────────────────────────────────────────────
+// Two shapes of the same list, both in Spanish, because it is Dinia who reads
+// it: a message to paste into an email, and a CSV for the article-by-article
+// file she uses to work out the insurance value.
+const es = it => it.es || it.t;
+const esD = it => it.des || it.d || '—';
+const head = `Menaje de casa — lista de artículos\n${SHIP.from} → ${SHIP.to}\n${SHIP.who}\nMedidas externas, tal como viaja cada artículo (el escritorio va desarmado).`;
+function asText() {
+  const line = it => `- ${es(it)}${it.q ? ` (${it.q})` : ''} — ${esD(it)}${it.kg ? ` · ${kilos(it.kg)}` : ''}${it.es_s || it.s ? ` — ${it.es_s || it.s}` : ''}`;
+  const pend = toMeasure.length ? `\nPendiente de medir: ${toMeasure.map(i => `${es(i)}${i.q ? ` (${i.q})` : ''}`).join(', ')}.` : '';
+  return `${head}\n\n${SHIP.groups[0].es} — ${count} artículos · ${cube(sumM3)} · ${kilos(sumKg)}\n`
+    + going.map(line).join('\n') + pend
+    + `\n\n${SHIP.groups[1].es}\n` + SHIP.groups[1].items.map(line).join('\n')
+    + `\n\nSIN CONTAR TODAVÍA\n${SHIP.es_prompts.join(', ')}.\n`;
+}
+function asCSV() {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const row = (it, g) => [es(it), it.q || 1, esD(it), it.kg ?? '', it.m3 ?? '', g, it.es_s || it.s || ''].map(q).join(',');
+  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(',') + '\n'
+    + SHIP.groups.map(g => g.items.map(it => row(it, g.es)).join('\n')).join('\n') + '\n';
+}
+function flash(btn, msg) { const was = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = was; }, 1600); }
+async function copyList(btn) {
+  const text = asText();
+  try { await navigator.clipboard.writeText(text); return flash(btn, 'Copied'); } catch (e) { /* no clipboard: fall back */ }
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+  document.body.append(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  ta.remove(); flash(btn, ok ? 'Copied' : 'Could not copy');
+}
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type: `${type};charset=utf-8` }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: name });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+addEventListener('click', e => {
+  const copy = e.target.closest('[data-copy]');
+  if (copy) return copyList(copy);
+  const csv = e.target.closest('[data-csv]');
+  if (csv) { download('menaje-carbo.csv', asCSV(), 'text/csv'); flash(csv, 'Saved'); }
+});
 
 document.getElementById('deck').innerHTML = cover() + P.map(product).join('') + list() + shipping();
 const slides = [...document.querySelectorAll('.slide')];
