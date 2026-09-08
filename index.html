@@ -494,9 +494,8 @@ function list() {
 // the total rather than guessed at. `es` / `es_s` / `des` are the Spanish the
 // export sends to Dinia; anything that reads the same in both is left out.
 const SHIP = {
-  from: 'London SE17 1GH',
-  to: 'Viva Residences, San Rafael de Escazú',
-  who: 'Federico Carbo · fede.carbo@gmail.com · +44 7951 477979',
+  from: 'London',
+  to: 'Escazú',
   groups: [
     {
       name: 'Going', es: 'VA',
@@ -571,7 +570,7 @@ function shipping() {
 // file she uses to work out the insurance value.
 const es = it => it.es || it.t;
 const esD = it => it.des || it.d || '—';
-const head = `Menaje de casa — lista de artículos\n${SHIP.from} → ${SHIP.to}\n${SHIP.who}\nMedidas externas, tal como viaja cada artículo (el escritorio va desarmado).`;
+const head = `Menaje de casa — lista de artículos\nLondres → ${SHIP.to}\nMedidas externas, tal como viaja cada artículo (el escritorio va desarmado).`;
 function asText() {
   const line = it => `- ${es(it)}${it.q ? ` (${it.q})` : ''} — ${esD(it)}${it.kg ? ` · ${kilos(it.kg)}` : ''}${it.es_s || it.s ? ` — ${it.es_s || it.s}` : ''}`;
   const pend = toMeasure.length ? `\nPendiente de medir: ${toMeasure.map(i => `${es(i)}${i.q ? ` (${i.q})` : ''}`).join(', ')}.` : '';
