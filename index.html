@@ -502,7 +502,7 @@ const SHIP = {
       items: [
         { t: 'Thermomix TM6', d: '32.6 × 32.6 × 34.1 cm', kg: 7.95, m3: 0.036 },
         { t: 'Technogym Bench', es: 'Banca Technogym', s: 'weights, bands and mat inside', es_s: 'con pesas, bandas y colchoneta dentro', d: '113 × 38 × 45.5 cm', kg: 99, m3: 0.195 },
-        { t: 'Secretlab MAGNUS desk', es: 'Escritorio Secretlab MAGNUS', s: 'travels apart · 73.5 cm tall assembled', es_s: 'viaja desarmado · 73.5 cm de alto armado', d: '150 × 70 cm top, frame apart', des: '150 × 70 cm el tablero, estructura aparte', kg: 42, m3: 0.10, est: true },
+        { t: 'Secretlab MAGNUS desk', es: 'Mueble de casa', s: 'travels apart · 73.5 cm tall assembled', es_s: 'de metal · viaja desarmado', d: '150 × 70 cm top, frame apart', des: '150 × 70 cm el tablero, estructura aparte', kg: 42, m3: 0.10, est: true },
         { t: 'Vesper coffee table', es: 'Mesa de centro Vesper', s: 'pine trunk · travels full', es_s: 'baúl de pino · viaja lleno', d: '85 × 48 × 45 cm', m3: 0.184 },
         { t: 'IKEA KUGGIS boxes', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
         { t: 'Iris Ohyama TB-30 boxes', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
@@ -580,7 +580,7 @@ function shipping() {
 // file she uses to work out the insurance value.
 const es = it => it.es || it.t;
 const esD = it => it.des || it.d || '—';
-const head = `Menaje de casa — lista de artículos\nLondres → ${SHIP.to}\nMedidas externas, tal como viaja cada artículo (el escritorio va desarmado).`;
+const head = `Menaje de casa — lista de artículos\nLondres → ${SHIP.to}\nMedidas externas, tal como viaja cada artículo (el mueble de metal y la mesa de comedor van desarmados).`;
 function asText() {
   const line = it => `- ${es(it)}${it.q ? ` (${it.q})` : ''} — ${esD(it)}${it.kg ? ` · ${kilos(it.kg)}` : ''}${it.es_s || it.s ? ` — ${it.es_s || it.s}` : ''}`;
   const pend = toMeasure.length ? `\nPendiente de medir: ${toMeasure.map(i => `${es(i)}${i.q ? ` (${i.q})` : ''}`).join(', ')}.` : '';
