@@ -221,6 +221,7 @@ a { color: var(--tint); }
 @media (hover: hover) { .row:hover { background: var(--fill); } }
 .row:active { opacity: .6; }
 .row .th { width: 46px; height: 46px; border-radius: var(--r-md); object-fit: cover; background: var(--fill); display: block; }
+.row .th.drawn { object-fit: contain; padding: 5px; }   /* a placeholder drawing, not a photo of the thing */
 .row .t { font-size: 15px; font-weight: 500; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .row .m { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 3px; font-size: 13px; color: var(--label-2); }
 .row .r { display: flex; align-items: center; gap: 10px; }
@@ -810,20 +811,18 @@ const SHIP = {
     { t: 'Technogym Bench', es: 'Banca Technogym', slug: 'technogym-bench', s: 'weights, bands and mat inside', es_s: 'con pesas, bandas y colchoneta dentro', d: '113 × 38 × 45.5 cm', kg: 99, m3: 0.195 },
     { t: 'Secretlab MAGNUS desk', es: 'Escritorio Secretlab MAGNUS', slug: 'secretlab-magnus-metal-desk', s: 'travels apart · 73.5 cm tall assembled', es_s: 'viaja desarmado · 73.5 cm de alto armado', d: '150 × 70 cm top, frame apart', des: '150 × 70 cm el tablero, estructura aparte', kg: 42, m3: 0.10, est: true },
     { t: 'Vesper coffee table', es: 'Mesa de centro Vesper', slug: 'vesper-coffee-table', s: 'pine trunk · travels full', es_s: 'baúl de pino · viaja lleno', d: '85 × 48 × 45 cm', m3: 0.184 },
-    { t: 'IKEA KUGGIS boxes', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
-    { t: 'Iris Ohyama TB-30 boxes', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
-    { t: 'Black storage boxes', es: 'Cajas negras', q: 3, d: 'to measure', des: 'por medir', measure: true },
+    { t: 'IKEA KUGGIS boxes', img: 'kuggis-box.svg', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
+    { t: 'Iris Ohyama TB-30 boxes', img: 'iris-box.svg', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
+    { t: 'Black storage boxes', img: 'black-box.svg', es: 'Cajas negras', q: 3, d: 'to measure', des: 'por medir', measure: true },
     { t: 'Joseph Joseph pocket ironing board', es: 'Tabla de planchar plegable Joseph Joseph', slug: 'joseph-joseph-pocket-ironing-board', s: 'no iron', es_s: 'sin plancha', d: '34 × 15.5 × 45.5 cm folded', des: '34 × 15.5 × 45.5 cm plegada', m3: 0.024 },
     { t: 'simplehuman 30 L bin', es: 'Basurero simplehuman 30 L', slug: 'simplehuman-touch-bar-bin', d: '33.9 × 28.9 × 71 cm', kg: 5.85, m3: 0.070 },
+      { t: 'Joseph Joseph Tota 90 L laundry basket', es: 'Cesto de ropa Joseph Joseph Tota 90 L', slug: 'joseph-joseph-tota-laundry-basket', s: 'two removable totes inside', es_s: 'con sus dos bolsas dentro', d: '56 × 39.5 × 71 cm', m3: 0.157 },
+      { t: 'EZ curl bar set', es: 'Barra Z con discos', slug: 'tnp-ez-curl-bar-set', s: 'plus 18.5 kg of plates and two collars', es_s: 'más 18.5 kg de discos y dos collarines', d: 'bar 120 cm', des: 'barra 120 cm', kg: 23.5, m3: 0.05, est: true },
+      { t: 'Sonos One', img: 'sonos-one.svg', es: 'Parlantes Sonos One', q: 2, s: '1.85 kg each · manufacturer figures', es_s: '1.85 kg c/u · medidas del fabricante', d: '16.1 × 12 × 12 cm each', des: '16.1 × 12 × 12 cm c/u', kg: 3.7, m3: 0.005 },
+    { t: 'Balolo Setup Cockpit', es: 'Soporte de monitor Balolo', slug: 'balolo-setup-cockpit', s: 'monitor stand with the laptop dock', es_s: 'soporte de monitor con base para laptop', d: '114 × 23 × 12 cm', kg: 3.8, m3: 0.031 },
+    { t: 'Herman Miller Aeron', es: 'Silla Herman Miller Aeron', slug: 'herman-miller-aeron', s: 'size B · 93 cm at its lowest setting', es_s: 'talla B · 93 cm en su posición más baja', d: '72 × 70 × 93 cm', kg: 18.6, m3: 0.469 },
   ],
-  maybe: [
-    { t: 'Joseph Joseph Tota 90 L laundry basket', es: 'Cesto de ropa Joseph Joseph Tota 90 L', slug: 'joseph-joseph-tota-laundry-basket', s: 'reserved for Zudik', es_s: 'reservado para Zudik', d: '56 × 39.5 × 71 cm' },
-    { t: 'Thermomix TM7', slug: 'thermomix-tm7', s: 'warranty to May 2027', es_s: 'garantía hasta mayo 2027', d: '25.3 × 40.5 × 33.6 cm', kg: 8.6 },
-    { t: 'Sonos Arc', slug: 'sonos-arc', s: 'withdrawn from the sale', es_s: 'retirado de la venta', d: '114.2 × 11.6 × 8.7 cm', kg: 6.25 },
-    { t: 'EIZO ColorEdge CS2740', slug: 'eizo-coloredge-cs2740', s: 'screen permits — ask Dinia first', es_s: 'pantalla usada · consultar permisos', d: '63.8 × 37.8 × 7.5 cm panel', des: '63.8 × 37.8 × 7.5 cm el panel', kg: 6.7 },
-    { t: 'Alienware AW2721D', slug: 'alienware-aw2721d', s: 'screen permits too', es_s: 'pantalla usada · consultar permisos', d: '60.8 × 25.2 × 44.3 cm', kg: 10.9 },
-    { t: 'EZ curl bar set', es: 'Barra Z con discos', slug: 'tnp-ez-curl-bar-set', s: 'still listed for sale', es_s: 'aún en venta', d: 'bar 120 cm', des: 'barra 120 cm', kg: 23.5 },
-  ],
+  maybe: [],
   prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames', 'Bike?'],
   es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros', '¿Bicicleta?'],
 };
@@ -841,7 +840,9 @@ function shipRow(it) {
   const meta = [it.d, it.kg ? kilos(it.kg) : '', it.s].filter(Boolean).map(esc).join(' · ');
   const right = it.measure ? '<span class="amt" style="color:var(--label-2)">to measure</span>'
     : it.m3 ? `<span class="amt">${(it.est ? '≈' : '') + it.m3.toFixed(2)} m³</span>` : '<span class="amt"></span>';
-  const inner = `${lot && lot.photos[0] ? `<img class="th" src="products/${encodeURIComponent(lot.slug)}/${encodeURIComponent(lot.photos[0].f)}" alt="">` : '<span class="th"></span>'}
+  const thumb = lot && lot.photos[0] ? `products/${encodeURIComponent(lot.slug)}/${encodeURIComponent(lot.photos[0].f)}`
+    : it.img ? `products/shipping/${encodeURIComponent(it.img)}` : '';
+  const inner = `${thumb ? `<img class="th${it.img && !(lot && lot.photos[0]) ? ' drawn' : ''}" src="${thumb}" alt="">` : '<span class="th"></span>'}
     <span><span class="t">${esc(it.t)}${it.q ? ` <span class="tag">× ${it.q}</span>` : ''}</span><span class="m">${meta}</span></span>
     <span class="r">${right}${lot ? IC.right : ''}</span>`;
   return lot ? `<button class="row" data-go="${i}">${inner}</button>` : `<div class="row">${inner}</div>`;
@@ -883,7 +884,7 @@ function shipText() {
   const pend = shipLeft.length ? `\nPendiente de medir: ${shipLeft.map(i => `${esName(i)}${i.q ? ` (${i.q})` : ''}`).join(', ')}.` : '';
   return `${shipHead}\n\nVA — ${shipCount} artículos · ${cube(shipM3)} · ${kilos(shipKg)}\n`
     + SHIP.going.map(line).join('\n') + pend
-    + `\n\nPOR CONFIRMAR\n` + SHIP.maybe.map(line).join('\n')
+    + (SHIP.maybe.length ? `\n\nPOR CONFIRMAR\n` + SHIP.maybe.map(line).join('\n') : '')
     + `\n\nSIN CONTAR TODAVÍA\n${SHIP.es_prompts.join(', ')}.\n`;
 }
 function shipCSV() {
@@ -891,7 +892,7 @@ function shipCSV() {
   const row = (it, g) => [esName(it), it.q || 1, esDim(it), it.kg ?? '', it.m3 ?? '', g, it.es_s || it.s || ''].map(q).join(',');
   return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(',') + '\n'
     + SHIP.going.map(it => row(it, 'VA')).join('\n') + '\n'
-    + SHIP.maybe.map(it => row(it, 'POR CONFIRMAR')).join('\n') + '\n';
+    + (SHIP.maybe.length ? SHIP.maybe.map(it => row(it, 'POR CONFIRMAR')).join('\n') + '\n' : '');
 }
 function shipDownload() {
   const url = URL.createObjectURL(new Blob([shipCSV()], { type: 'text/csv;charset=utf-8' }));
