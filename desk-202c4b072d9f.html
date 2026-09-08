@@ -560,7 +560,7 @@ function boot(data) {
   document.body.classList.add('ready');
   const h = location.hash.slice(1);
   const i = LOTS.findIndex(l => l.slug === h);
-  render(i >= 0 ? { screen: 'lot', i } : { screen: 'queue' });
+  render(h === 'shipping' ? { screen: 'ship' } : i >= 0 ? { screen: 'lot', i } : { screen: 'queue' });
 }
 const money = n => typeof n === 'number' ? fmt.format(n) : '';
 const money2 = n => typeof n !== 'number' ? '' : Number.isInteger(n) ? fmt.format(n) : fmt2.format(n);
@@ -737,9 +737,10 @@ function render(next, keep) {
   if (next) route = next;
   const y = keep ? scrollY : 0;
   const app = $("#app");
-  app.innerHTML = route.screen === "lot" ? lotScreen(route.i) : queueScreen();
+  app.innerHTML = route.screen === "lot" ? lotScreen(route.i) : route.screen === "ship" ? shipScreen() : queueScreen();
   app.querySelectorAll('.val.scroll').forEach(el => el.classList.toggle('over', el.scrollHeight > el.clientHeight + 2));
   if (route.screen === "lot") { cur = route.i; location.hash = LOTS[cur].slug; }
+  else if (route.screen === "ship") location.hash = 'shipping';
   else history.replaceState(null, "", location.pathname + location.search);
   scrollTo(0, y);
 }
@@ -764,6 +765,7 @@ function queueScreen() {
         <div class="acts">
           <button class="act primary" data-go="${first}">${todo.length ? 'Start listing' : 'Open the first lot'} ${IC.right}</button>
           <button class="act" data-copy-update>${IC.copy} Copy update for Claude</button>
+          <button class="act" data-ship>Shipping list ${IC.right}</button>
         </div>
         ${shots ? `<div class="card warn" style="margin-top:14px"><h3>${IC.cam} Photos first</h3><p class="note">${shots} lot${shots === 1 ? '' : 's'} still show only a stock photo. Shoot those before you post them — every screen here is ready except the pictures.</p></div>` : ''}
       </div>
@@ -790,6 +792,112 @@ function rowFor(lot) {
     <span class="r"><span class="amt">${lot.asking === 0 ? 'Free' : money(lot.setPrice ?? lot.asking)}</span>
       <span class="dotset" aria-hidden="true">${PLATFORMS.map(p => `<i class="${st(lot)[p.id]?.on ? 'on' : ''}"></i>`).join('')}</span>${IC.right}</span>
   </button>`;
+}
+
+// ── Shipping ─────────────────────────────────────────────
+// What goes to Costa Rica, which is the opposite question to the rest of this
+// desk: not what to sell, but what to keep and what it costs to move. Sizes are
+// the lot AS IT TRAVELS — the desk in pieces, the bench with its weights in, the
+// boxes closed — because that is what a mover prices. `m3` is the space it takes
+// on a pallet, `est` a figure to confirm once the lot is actually apart, and
+// `measure` one not yet measured, left out of the total rather than guessed at.
+// `slug` links back to the lot, so a row opens its listing screen and borrows
+// its photo; the sizes live here so the page still works if the lot is gone.
+const SHIP = {
+  to: 'Escazú',
+  going: [
+    { t: 'Thermomix TM6', slug: 'thermomix-tm6', d: '32.6 × 32.6 × 34.1 cm', kg: 7.95, m3: 0.036 },
+    { t: 'Technogym Bench', es: 'Banca Technogym', slug: 'technogym-bench', s: 'weights, bands and mat inside', es_s: 'con pesas, bandas y colchoneta dentro', d: '113 × 38 × 45.5 cm', kg: 99, m3: 0.195 },
+    { t: 'Secretlab MAGNUS desk', es: 'Escritorio Secretlab MAGNUS', slug: 'secretlab-magnus-metal-desk', s: 'travels apart · 73.5 cm tall assembled', es_s: 'viaja desarmado · 73.5 cm de alto armado', d: '150 × 70 cm top, frame apart', des: '150 × 70 cm el tablero, estructura aparte', kg: 42, m3: 0.10, est: true },
+    { t: 'Vesper coffee table', es: 'Mesa de centro Vesper', slug: 'vesper-coffee-table', s: 'pine trunk · travels full', es_s: 'baúl de pino · viaja lleno', d: '85 × 48 × 45 cm', m3: 0.184 },
+    { t: 'IKEA KUGGIS boxes', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
+    { t: 'Iris Ohyama TB-30 boxes', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
+    { t: 'Black storage boxes', es: 'Cajas negras', q: 3, d: 'to measure', des: 'por medir', measure: true },
+    { t: 'Joseph Joseph pocket ironing board', es: 'Tabla de planchar plegable Joseph Joseph', slug: 'joseph-joseph-pocket-ironing-board', s: 'no iron', es_s: 'sin plancha', d: '34 × 15.5 × 45.5 cm folded', des: '34 × 15.5 × 45.5 cm plegada', m3: 0.024 },
+    { t: 'simplehuman 30 L bin', es: 'Basurero simplehuman 30 L', slug: 'simplehuman-touch-bar-bin', d: '33.9 × 28.9 × 71 cm', kg: 5.85, m3: 0.070 },
+  ],
+  maybe: [
+    { t: 'Joseph Joseph Tota 90 L laundry basket', es: 'Cesto de ropa Joseph Joseph Tota 90 L', slug: 'joseph-joseph-tota-laundry-basket', s: 'reserved for Zudik', es_s: 'reservado para Zudik', d: '56 × 39.5 × 71 cm' },
+    { t: 'Thermomix TM7', slug: 'thermomix-tm7', s: 'warranty to May 2027', es_s: 'garantía hasta mayo 2027', d: '25.3 × 40.5 × 33.6 cm', kg: 8.6 },
+    { t: 'Sonos Arc', slug: 'sonos-arc', s: 'withdrawn from the sale', es_s: 'retirado de la venta', d: '114.2 × 11.6 × 8.7 cm', kg: 6.25 },
+    { t: 'EIZO ColorEdge CS2740', slug: 'eizo-coloredge-cs2740', s: 'screen permits — ask Dinia first', es_s: 'pantalla usada · consultar permisos', d: '63.8 × 37.8 × 7.5 cm panel', des: '63.8 × 37.8 × 7.5 cm el panel', kg: 6.7 },
+    { t: 'Alienware AW2721D', slug: 'alienware-aw2721d', s: 'screen permits too', es_s: 'pantalla usada · consultar permisos', d: '60.8 × 25.2 × 44.3 cm', kg: 10.9 },
+    { t: 'EZ curl bar set', es: 'Barra Z con discos', slug: 'tnp-ez-curl-bar-set', s: 'still listed for sale', es_s: 'aún en venta', d: 'bar 120 cm', des: 'barra 120 cm', kg: 23.5 },
+  ],
+  prompts: ['Clothes and shoes', 'Bedding and towels', 'Kitchenware', 'Nespresso machine', 'Books and documents', 'Suitcases', 'Cables and electronics', 'Art and frames', 'Bike?'],
+  es_prompts: ['Ropa y zapatos', 'Ropa de cama y toallas', 'Cosas de cocina', 'Máquina Nespresso', 'Libros y documentos', 'Maletas', 'Cables y electrónica', 'Cuadros', '¿Bicicleta?'],
+};
+const shipCount = SHIP.going.reduce((n, i) => n + (i.q || 1), 0);
+const shipM3 = SHIP.going.reduce((n, i) => n + (i.m3 || 0), 0);
+const shipKg = SHIP.going.reduce((n, i) => n + (i.kg || 0), 0);
+const shipLeft = SHIP.going.filter(i => i.measure);
+const shipEst = SHIP.going.some(i => i.est);
+const kilos = n => n.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + ' kg';
+const cube = n => (shipEst ? '≈' : '') + n.toFixed(2) + ' m³';
+const lotOf = it => it.slug ? LOTS.find(l => l.slug === it.slug) : null;
+
+function shipRow(it) {
+  const lot = lotOf(it), i = lot ? LOTS.indexOf(lot) : -1;
+  const meta = [it.d, it.kg ? kilos(it.kg) : '', it.s].filter(Boolean).map(esc).join(' · ');
+  const right = it.measure ? '<span class="amt" style="color:var(--label-2)">to measure</span>'
+    : it.m3 ? `<span class="amt">${(it.est ? '≈' : '') + it.m3.toFixed(2)} m³</span>` : '<span class="amt"></span>';
+  const inner = `${lot && lot.photos[0] ? `<img class="th" src="products/${encodeURIComponent(lot.slug)}/${encodeURIComponent(lot.photos[0].f)}" alt="">` : '<span class="th"></span>'}
+    <span><span class="t">${esc(it.t)}${it.q ? ` <span class="tag">× ${it.q}</span>` : ''}</span><span class="m">${meta}</span></span>
+    <span class="r">${right}${lot ? IC.right : ''}</span>`;
+  return lot ? `<button class="row" data-go="${i}">${inner}</button>` : `<div class="row">${inner}</div>`;
+}
+function shipSection(name, list) {
+  if (!list.length) return '';
+  return `<section class="sec"><h2>${esc(name)} · ${list.length}</h2><div class="group">${list.map(shipRow).join('')}</div></section>`;
+}
+function shipScreen() {
+  return `
+    <header class="top">
+      <button class="chev" data-queue>${IC.left} Queue</button><span class="sp"></span>
+      <span class="ttl" style="font-weight:500;color:var(--label-2)">London → ${esc(SHIP.to)}</span>
+      <button class="ico" data-lock aria-label="Lock">${IC.lock}</button>
+    </header>
+    <div class="wrap">
+      <div class="hero">
+        <h1>Shipping</h1>
+        <p>${shipCount} items · ${cube(shipM3)} · ${kilos(shipKg)}${shipLeft.length ? ` · ${shipLeft.length} still to measure` : ''}</p>
+        <div class="acts">
+          <button class="act primary" data-ship-copy>${IC.copy} Copy for Dinia</button>
+          <button class="act" data-ship-csv>${IC.copy} CSV</button>
+        </div>
+        <div class="card" style="margin-top:14px"><p class="note">Sizes are the lot as it travels — the desk in pieces, the bench with its weights in, the boxes closed. A 120 × 100 cm pallet stacked to 160 cm holds about 1.9 m³.</p></div>
+      </div>
+      ${shipSection('Going', SHIP.going)}
+      ${shipSection('Still to decide', SHIP.maybe)}
+      <section class="sec"><h2>Not counted yet · ${SHIP.prompts.length}</h2><div class="group"><div class="row" style="grid-template-columns:1fr"><span class="m">${SHIP.prompts.map(esc).join(' · ')}</span></div></div></section>
+    </div>`;
+}
+
+// The same list in the two shapes Dinia can use: a message to paste into an
+// email, and a CSV for the article-by-article file the insurance value comes from.
+const esName = it => it.es || it.t;
+const esDim = it => it.des || it.d || '—';
+const shipHead = `Menaje de casa — lista de artículos\nLondres → ${SHIP.to}\nMedidas externas, tal como viaja cada artículo (el escritorio va desarmado).`;
+function shipText() {
+  const line = it => `- ${esName(it)}${it.q ? ` (${it.q})` : ''} — ${esDim(it)}${it.kg ? ` · ${kilos(it.kg)}` : ''}${it.es_s || it.s ? ` — ${it.es_s || it.s}` : ''}`;
+  const pend = shipLeft.length ? `\nPendiente de medir: ${shipLeft.map(i => `${esName(i)}${i.q ? ` (${i.q})` : ''}`).join(', ')}.` : '';
+  return `${shipHead}\n\nVA — ${shipCount} artículos · ${cube(shipM3)} · ${kilos(shipKg)}\n`
+    + SHIP.going.map(line).join('\n') + pend
+    + `\n\nPOR CONFIRMAR\n` + SHIP.maybe.map(line).join('\n')
+    + `\n\nSIN CONTAR TODAVÍA\n${SHIP.es_prompts.join(', ')}.\n`;
+}
+function shipCSV() {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const row = (it, g) => [esName(it), it.q || 1, esDim(it), it.kg ?? '', it.m3 ?? '', g, it.es_s || it.s || ''].map(q).join(',');
+  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(',') + '\n'
+    + SHIP.going.map(it => row(it, 'VA')).join('\n') + '\n'
+    + SHIP.maybe.map(it => row(it, 'POR CONFIRMAR')).join('\n') + '\n';
+}
+function shipDownload() {
+  const url = URL.createObjectURL(new Blob([shipCSV()], { type: 'text/csv;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'menaje-carbo.csv' });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // The form as this marketplace asks it: its own fields in its own order, then the ones the category
@@ -950,6 +1058,9 @@ document.addEventListener('click', async e => {
     return;
   }
   if (t.closest('[data-copy-update]')) { const ok = await copyText(updateText()); return toast(ok ? 'Copied — paste it to Claude' : 'Could not copy'); }
+  if (t.closest('[data-ship]')) return render({ screen: 'ship' });
+  if (t.closest('[data-ship-copy]')) { const ok = await copyText(shipText()); return toast(ok ? 'Copied — paste it to Dinia' : 'Could not copy'); }
+  if (t.closest('[data-ship-csv]')) { shipDownload(); return toast('CSV saved'); }
   if (t.closest('[data-reveal]')) { const el = $('[data-postcode]'); el.hidden = false; t.closest('[data-reveal]').remove(); return; }
   const more = t.closest('[data-more]');
   if (more) return more.previousElementSibling.classList.toggle('open');
