@@ -10,7 +10,7 @@ file: the repository is public. Names are first names, companies are companies.
 
 Two pallets of household goods travel from London to San Rafael de Escazú, Costa
 Rica. The quote is approved and a collection date is tentatively booked. What is
-left is a handful of answers, two measurements and the documents.
+left is a handful of answers, one measurement and the documents.
 
 | | |
 |---|---|
@@ -47,9 +47,9 @@ left is a handful of answers, two measurements and the documents.
 2. **Passport copy** to Dinia.
 3. **Tenancy agreement** to Dinia, as proof of time lived in the UK. The consulate
    asked for a contract too.
-4. **Two measurements**: the small clear boxes, and the bike (which depends
-   on whether it travels boxed). The black boxes are done: six of them, 59.5 × 40
-   × 37 cm each.
+4. **One measurement**: the bike, which depends on whether it travels boxed.
+   The boxes are done — six large black at 59.5 × 40 × 37 cm, and the white and
+   clear ones both 54 × 37 × 21 cm.
 5. **Zudik** — the Joseph Joseph laundry basket was reserved for them and is now
    on the shipping list. It has been removed from the sale; the reservation only
    exists in that conversation.
@@ -69,8 +69,8 @@ Both carry the same two exports: **Copy for Dinia** (Spanish plain text, ready t
 paste into an email) and **CSV** (with a volume column, for the article-by-article
 file the insurance value comes from).
 
-**28 items, ≈2.29 m³ of the 5 m³ quoted, 270.05 kg**, with two lots still to
-measure and left out of the cube rather than guessed at.
+**28 items, ≈2.50 m³ of the 5 m³ quoted, 270.05 kg**, with one lot still to
+measure — the bike — and left out of the cube rather than guessed at.
 
 Sizes are recorded **as each lot travels**, not as it stands in the flat — the
 metal desk and the ceramic table in pieces, the bench with its weights inside,
@@ -127,13 +127,15 @@ are hard to get.
 - Lot dimensions and weights come from the sale catalogue in `index.html`, which
   is Fede's own record.
 - The IKEA KUGGIS boxes (54 × 37 × 21 cm) and Iris Ohyama TB-30 boxes (30 L) were
-  identified from Amazon and IKEA order confirmations in Gmail.
+  identified from Amazon and IKEA order confirmations in Gmail. Fede says the
+  clear boxes are the same size as the KUGGIS ones, so they carry the KUGGIS
+  measurements; the 30 L on the order does not square with that and is dropped.
 - Sonos One at 16.1 × 12 × 12 cm and 1.85 kg, and the Boardman HYB 8.8 at 10.4 kg,
   are manufacturer figures found on the web, marked as such on the list — there
   are no receipts for either.
 - The black storage boxes appear in no receipt at all; they were bought in a shop.
   Measured by Fede: six, 59.5 × 40 × 37 cm each, 0.528 m³ together.
 - The list names storage boxes by colour and size — large black, medium white,
-  small clear — not by brand. The brands above are only where the sizes came from.
+  medium clear — not by brand. The brands above are only where the sizes came from.
 - The bike is insured with Laka; its model, frame size and insured value are on
   the policy in their app, not in any email.
