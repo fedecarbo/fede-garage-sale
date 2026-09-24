@@ -47,9 +47,9 @@ left is a handful of answers, two measurements and the documents.
 2. **Passport copy** to Dinia.
 3. **Tenancy agreement** to Dinia, as proof of time lived in the UK. The consulate
    asked for a contract too.
-4. **Two measurements**: the bike, which depends on whether it travels boxed,
-   and the laundry basket folded — it folds flat, and until it is measured it
-   counts at its unfolded 0.157 m³, marked as an estimate.
+4. **Two measurements**: the bike as it stands, since it travels unboxed; and
+   the laundry basket folded. The basket folds flat, and until it is measured
+   it counts at its unfolded 0.157 m³, marked as an estimate.
    The boxes are done — six large black at 59.5 × 40 × 37 cm, and the white and
    clear ones both 54 × 37 × 21 cm.
 5. **Zudik** — the Joseph Joseph laundry basket was reserved for them and is now
@@ -77,7 +77,8 @@ measure — the bike — and left out of the cube rather than guessed at.
 Sizes are recorded **as each lot travels**, not as it stands in the flat — the
 metal desk and the ceramic table in pieces, the bench with its weights inside,
 the boxes closed. Two lots are longer than a 120 cm pallet edge: the 150 cm
-desktop and a boxed bike at about 140 cm.
+desktop and the bike. Nothing big travels in a box of its own — there are none;
+the movers pack it.
 
 Nothing under "not counted yet" is in that figure — clothes, bedding,
 kitchenware, books, suitcases, the Nespresso machine. That is the number most
