@@ -47,7 +47,7 @@ left is a handful of answers, two measurements and the documents.
 2. **Passport copy** to Dinia.
 3. **Tenancy agreement** to Dinia, as proof of time lived in the UK. The consulate
    asked for a contract too.
-4. **Two measurements**: one transparent Iris box, and the bike (which depends
+4. **Two measurements**: the small clear boxes, and the bike (which depends
    on whether it travels boxed). The black boxes are done: six of them, 59.5 × 40
    × 37 cm each.
 5. **Zudik** — the Joseph Joseph laundry basket was reserved for them and is now
@@ -126,5 +126,7 @@ are hard to get.
   are no receipts for either.
 - The black storage boxes appear in no receipt at all; they were bought in a shop.
   Measured by Fede: six, 59.5 × 40 × 37 cm each, 0.528 m³ together.
+- The list names storage boxes by colour and size — large black, medium white,
+  small clear — not by brand. The brands above are only where the sizes came from.
 - The bike is insured with Laka; its model, frame size and insured value are on
   the policy in their app, not in any email.
