@@ -592,10 +592,13 @@ function asText() {
     + `\n\nSIN CONTAR TODAVÍA\n${SHIP.es_prompts.join(', ')}.\n`;
 }
 function asCSV() {
+  // Dinia's Excel is set up for Spanish: it splits columns on ';' and reads ',' as
+  // the decimal point. A comma-separated file lands in one column there.
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const row = (it, g) => [es(it), it.q || 1, esD(it), it.kg ?? '', it.m3 ?? '', g, it.es_s || it.s || ''].map(q).join(',');
-  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(',') + '\n'
-    + SHIP.groups.map(g => g.items.map(it => row(it, g.es)).join('\n')).join('\n') + '\n';
+  const num = v => v == null ? '' : String(v).replace('.', ',');
+  const row = (it, g) => [es(it), it.q || 1, esD(it), num(it.kg), num(it.m3), g, it.es_s || it.s || ''].map(q).join(';');
+  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(';') + '\r\n'
+    + SHIP.groups.filter(g => g.items.length).map(g => g.items.map(it => row(it, g.es)).join('\r\n')).join('\r\n') + '\r\n';
 }
 function flash(btn, msg) { const was = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = was; }, 1600); }
 async function copyList(btn) {
