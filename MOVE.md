@@ -1,7 +1,7 @@
 # The move — London to Escazú
 
 Status of the household move, kept so a new session can pick it up without being
-told the story again. **Last updated 9 September 2026.**
+told the story again. **Last updated 24 September 2026.**
 
 No addresses, phone numbers, email addresses or document numbers live in this
 file: the repository is public. Names are first names, companies are companies.
@@ -10,7 +10,7 @@ file: the repository is public. Names are first names, companies are companies.
 
 Two pallets of household goods travel from London to San Rafael de Escazú, Costa
 Rica. The quote is approved and a collection date is tentatively booked. What is
-left is a handful of answers, three measurements and the documents.
+left is a handful of answers, two measurements and the documents.
 
 | | |
 |---|---|
@@ -47,8 +47,9 @@ left is a handful of answers, three measurements and the documents.
 2. **Passport copy** to Dinia.
 3. **Tenancy agreement** to Dinia, as proof of time lived in the UK. The consulate
    asked for a contract too.
-4. **Three measurements**: one transparent Iris box, one black box, and the bike
-   (which depends on whether it travels boxed).
+4. **Two measurements**: one transparent Iris box, and the bike (which depends
+   on whether it travels boxed). The black boxes are done: six of them, 59.5 × 40
+   × 37 cm each.
 5. **Zudik** — the Joseph Joseph laundry basket was reserved for them and is now
    on the shipping list. It has been removed from the sale; the reservation only
    exists in that conversation.
@@ -68,7 +69,7 @@ Both carry the same two exports: **Copy for Dinia** (Spanish plain text, ready t
 paste into an email) and **CSV** (with a volume column, for the article-by-article
 file the insurance value comes from).
 
-**24 items, ≈1.80 m³ of the 5 m³ quoted, 263.8 kg**, with three lots still to
+**27 items, ≈2.32 m³ of the 5 m³ quoted, 263.8 kg**, with two lots still to
 measure and left out of the cube rather than guessed at.
 
 Sizes are recorded **as each lot travels**, not as it stands in the flat — the
@@ -124,5 +125,6 @@ are hard to get.
   are manufacturer figures found on the web, marked as such on the list — there
   are no receipts for either.
 - The black storage boxes appear in no receipt at all; they were bought in a shop.
+  Measured by Fede: six, 59.5 × 40 × 37 cm each, 0.528 m³ together.
 - The bike is insured with Laka; its model, frame size and insured value are on
   the policy in their app, not in any email.
