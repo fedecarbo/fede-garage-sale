@@ -897,11 +897,14 @@ function shipText() {
     + `\n\nSIN CONTAR TODAVÍA\n${SHIP.es_prompts.join(', ')}.\n`;
 }
 function shipCSV() {
+  // Dinia's Excel is set up for Spanish: it splits columns on ';' and reads ',' as
+  // the decimal point. A comma-separated file lands in one column there.
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const row = (it, g) => [esName(it), it.q || 1, esDim(it), it.kg ?? '', it.m3 ?? '', g, it.es_s || it.s || ''].map(q).join(',');
-  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(',') + '\n'
-    + SHIP.going.map(it => row(it, 'VA')).join('\n') + '\n'
-    + (SHIP.maybe.length ? SHIP.maybe.map(it => row(it, 'POR CONFIRMAR')).join('\n') + '\n' : '');
+  const num = v => v == null ? '' : String(v).replace('.', ',');
+  const row = (it, g) => [esName(it), it.q || 1, esDim(it), num(it.kg), num(it.m3), g, it.es_s || it.s || ''].map(q).join(';');
+  return '\ufeff' + ['Artículo', 'Cantidad', 'Medidas (cm)', 'Peso (kg)', 'Volumen (m³)', 'Grupo', 'Notas'].map(q).join(';') + '\r\n'
+    + SHIP.going.map(it => row(it, 'VA')).join('\r\n') + '\r\n'
+    + (SHIP.maybe.length ? SHIP.maybe.map(it => row(it, 'POR CONFIRMAR')).join('\r\n') + '\r\n' : '');
 }
 function shipDownload() {
   const url = URL.createObjectURL(new Blob([shipCSV()], { type: 'text/csv;charset=utf-8' }));
