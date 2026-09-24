@@ -69,7 +69,7 @@ Both carry the same two exports: **Copy for Dinia** (Spanish plain text, ready t
 paste into an email) and **CSV** (with a volume column, for the article-by-article
 file the insurance value comes from).
 
-**27 items, ≈2.28 m³ of the 5 m³ quoted, 263.8 kg**, with two lots still to
+**28 items, ≈2.29 m³ of the 5 m³ quoted, 270.05 kg**, with two lots still to
 measure and left out of the cube rather than guessed at.
 
 Sizes are recorded **as each lot travels**, not as it stands in the flat — the
@@ -92,15 +92,16 @@ In the Spanish export the metal desk is called **"mueble de casa"**, not
 
 ## The sale
 
-`index.html` is the public sale deck; **17 lots** remain. Lots that moved to the
+`index.html` is the public sale deck; **16 lots** remain. Lots that moved to the
 shipping list were removed from it, which is why the count keeps falling: TM6,
 Technogym bench, MAGNUS desk, Vesper coffee table, pocket ironing board,
 simplehuman bin, Tota laundry basket, EZ curl bar, Balolo stand, Herman Miller
-Aeron, Ellipse ceramic table.
+Aeron, Ellipse ceramic table, Sonos Arc.
 
-Neither shipping nor selling, currently in limbo: **Thermomix TM7, Sonos Arc,
-EIZO ColorEdge CS2740, Alienware AW2721D**. All four are marked "unavailable" in
-the sale and were dropped from the shipping list. The two monitors have a real
+Neither shipping nor selling, currently in limbo: **Thermomix TM7, EIZO
+ColorEdge CS2740, Alienware AW2721D**. All three are marked "unavailable" in the
+sale and were dropped from the shipping list. The Sonos Arc was the fourth, until
+it joined the shipping list on 24 September. The two monitors have a real
 obstacle — Dinia warned in May that used screens need Costa Rican permits that
 are hard to get.
 
