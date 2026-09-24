@@ -69,7 +69,7 @@ Both carry the same two exports: **Copy for Dinia** (Spanish plain text, ready t
 paste into an email) and **CSV** (with a volume column, for the article-by-article
 file the insurance value comes from).
 
-**27 items, ≈2.29 m³ of the 5 m³ quoted, 263.8 kg**, with two lots still to
+**27 items, ≈2.28 m³ of the 5 m³ quoted, 263.8 kg**, with two lots still to
 measure and left out of the cube rather than guessed at.
 
 Sizes are recorded **as each lot travels**, not as it stands in the flat — the
@@ -84,8 +84,8 @@ likely to move the price, since the tariff is *sujeta a volumen*.
 Something packed inside another lot stays on the list as its own line, because
 customs values goods article by article and Dinia estimates the tax from this
 list — but at `m3: 0`, since it takes no space of its own. The **Thermomix TM6
-travels inside one of the large black boxes**: its weight counts, its volume does
-not.
+and the two Sonos One speakers travel inside the large black boxes**: their weight
+counts, their volume does not.
 
 In the Spanish export the metal desk is called **"mueble de casa"**, not
 *escritorio*, for how it is classified on arrival.
