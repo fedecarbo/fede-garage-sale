@@ -10,7 +10,7 @@ file: the repository is public. Names are first names, companies are companies.
 
 Two pallets of household goods travel from London to San Rafael de Escazú, Costa
 Rica. The quote is approved and a collection date is tentatively booked. What is
-left is a handful of answers, one measurement and the documents.
+left is a handful of answers, two measurements and the documents.
 
 | | |
 |---|---|
@@ -47,7 +47,9 @@ left is a handful of answers, one measurement and the documents.
 2. **Passport copy** to Dinia.
 3. **Tenancy agreement** to Dinia, as proof of time lived in the UK. The consulate
    asked for a contract too.
-4. **One measurement**: the bike, which depends on whether it travels boxed.
+4. **Two measurements**: the bike, which depends on whether it travels boxed,
+   and the laundry basket folded — it folds flat, and until it is measured it
+   counts at its unfolded 0.157 m³, marked as an estimate.
    The boxes are done — six large black at 59.5 × 40 × 37 cm, and the white and
    clear ones both 54 × 37 × 21 cm.
 5. **Zudik** — the Joseph Joseph laundry basket was reserved for them and is now
