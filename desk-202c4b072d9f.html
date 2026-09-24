@@ -813,7 +813,7 @@ const SHIP = {
     { t: 'Vesper coffee table', es: 'Mesa de centro Vesper', slug: 'vesper-coffee-table', s: 'pine trunk · travels full', es_s: 'baúl de pino · viaja lleno', d: '85 × 48 × 45 cm', m3: 0.184 },
     { t: 'IKEA KUGGIS boxes', img: 'kuggis-box.svg', es: 'Cajas IKEA KUGGIS', q: 2, s: 'white, with lids', es_s: 'blancas, con tapa', d: '54 × 37 × 21 cm each', des: '54 × 37 × 21 cm c/u', m3: 0.084 },
     { t: 'Iris Ohyama TB-30 boxes', img: 'iris-box.svg', es: 'Cajas Iris Ohyama TB-30', q: 5, s: 'transparent, 30 L each', es_s: 'transparentes, 30 L c/u', d: 'to measure', des: 'por medir', measure: true },
-    { t: 'Black storage boxes', img: 'black-box.svg', es: 'Cajas negras', q: 6, d: '59.5 × 40 × 37 cm each', des: '59.5 × 40 × 37 cm c/u', m3: 0.528 },
+    { t: 'Black storage boxes', img: 'black-box.jpg', es: 'Cajas negras', q: 6, s: 'Wham Bam heavy-duty, with lids', es_s: 'Wham Bam reforzadas, con tapa', d: '59.5 × 40 × 37 cm each', des: '59.5 × 40 × 37 cm c/u', m3: 0.528 },
     { t: 'Joseph Joseph pocket ironing board', es: 'Tabla de planchar plegable Joseph Joseph', slug: 'joseph-joseph-pocket-ironing-board', s: 'no iron', es_s: 'sin plancha', d: '34 × 15.5 × 45.5 cm folded', des: '34 × 15.5 × 45.5 cm plegada', m3: 0.024 },
     { t: 'simplehuman 30 L bin', es: 'Basurero simplehuman 30 L', slug: 'simplehuman-touch-bar-bin', d: '33.9 × 28.9 × 71 cm', kg: 5.85, m3: 0.070 },
       { t: 'Joseph Joseph Tota 90 L laundry basket', es: 'Cesto de ropa Joseph Joseph Tota 90 L', slug: 'joseph-joseph-tota-laundry-basket', s: 'two removable totes inside', es_s: 'con sus dos bolsas dentro', d: '56 × 39.5 × 71 cm', m3: 0.157 },
@@ -849,7 +849,7 @@ function shipRow(it) {
     : it.m3 ? `<span class="amt">${(it.est ? '≈' : '') + it.m3.toFixed(2)} m³</span>` : '<span class="amt"></span>';
   const thumb = lot && lot.photos[0] ? `products/${encodeURIComponent(lot.slug)}/${encodeURIComponent(lot.photos[0].f)}`
     : it.img ? `products/shipping/${encodeURIComponent(it.img)}` : '';
-  const inner = `${thumb ? `<img class="th${it.img && !(lot && lot.photos[0]) ? ' drawn' : ''}" src="${thumb}" alt="">` : '<span class="th"></span>'}
+  const inner = `${thumb ? `<img class="th${it.img && /\.svg$/.test(it.img) && !(lot && lot.photos[0]) ? ' drawn' : ''}" src="${thumb}" alt="">` : '<span class="th"></span>'}
     <span><span class="t">${esc(it.t)}${it.q ? ` <span class="tag">× ${it.q}</span>` : ''}</span><span class="m">${meta}</span></span>
     <span class="r">${right}${lot ? IC.right : ''}</span>`;
   return lot ? `<button class="row" data-go="${i}">${inner}</button>` : `<div class="row">${inner}</div>`;
