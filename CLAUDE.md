@@ -13,7 +13,7 @@ retold at the start of a session. Keep it current when any of that changes.
 |---|---|
 | `index.html` | The public sale deck: a cover, one slide per lot, an "Everything" list, and a Shipping slide at the end. Published to GitHub Pages from `main`. |
 | `desk-202c4b072d9f.html` | The private listing desk, password-locked. Marketplace forms per lot, plus a Shipping screen. Its lot data is an encrypted vault; the password is Fede's. |
-| `products/<slug>/` | Photos per lot. `products/shipping/` holds drawn placeholders for things that were never lots. |
+| `products/<slug>/` | Photos per lot. `products/shipping/` holds pictures for things that were never lots — drawn placeholders, and a photo where there is one. |
 
 Both HTML files are standalone: no build step, no dependencies, everything inline.
 
